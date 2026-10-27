@@ -167,8 +167,9 @@ export function AppProvider({ children }) {
     addToast('All notifications marked as read.', 'info');
   };
 
-  const sendMessage = (conversationId, text) => {
-    const msg = storageService.sendMessage(conversationId, text, currentUser?.id);
+  const sendMessage = (conversationId, text, customSenderId) => {
+    const sender = customSenderId || currentUser?.id;
+    const msg = storageService.sendMessage(conversationId, text, sender);
     setConversations(storageService.getConversations());
     return msg;
   };
