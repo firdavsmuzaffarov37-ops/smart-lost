@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { storageService } from '../services/storageService';
+import { getAvatarForEmail, AVATAR_PRESETS } from '../data/initialData';
 import LanguageSelector from '../components/common/LanguageSelector';
 import {
   Compass,
@@ -28,6 +29,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -48,73 +50,30 @@ export default function LoginPage() {
       const cleanEmail = email.trim().toLowerCase();
       let account = storageService.findAccountByEmail(cleanEmail);
 
-      if (!account) {
-        if (cleanEmail.includes('malika')) {
-          account = {
-            id: 'user-malika',
-            name: 'Malika Usmonova',
-            email: cleanEmail,
-            phone: '+998 93 987 65 43',
-            avatar:
-              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80',
-            verified: true,
-            city: 'Samarkand',
-            role: 'Community Member',
-            trustScore: 99,
-            joinedDate: 'February 2025',
-          };
-        } else if (cleanEmail.includes('azizbek')) {
-          account = {
-            id: 'user-azizbek',
-            name: 'Azizbek Rakhimov',
-            email: cleanEmail,
-            phone: '+998 90 123 45 67',
-            avatar:
-              'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80',
-            verified: true,
-            city: 'Tashkent',
-            role: 'Verified Citizen',
-            trustScore: 98,
-            joinedDate: 'January 2025',
-          };
-        } else if (cleanEmail.includes('sherzod')) {
-          account = {
-            id: 'user-sherzod',
-            name: 'Sherzod Aliyev',
-            email: cleanEmail,
-            phone: '+998 94 555 12 34',
-            avatar:
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80',
-            verified: true,
-            city: 'Tashkent',
-            role: 'Park Security Lead',
-            trustScore: 100,
-            joinedDate: 'December 2024',
-          };
-        } else {
-          // Custom new user login
-          const rawName = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
-          const formattedName = rawName
-            .split(' ')
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(' ');
-          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            formattedName || 'User'
-          )}&background=2563eb&color=fff&size=240&bold=true`;
+      const avatarUrl = selectedAvatar || (account ? account.avatar : getAvatarForEmail(cleanEmail));
 
-          account = {
-            id: `user-${Date.now()}`,
-            name: formattedName || 'Foydalanuvchi',
-            email: cleanEmail,
-            phone: '+998 90 000 00 00',
-            avatar: avatarUrl,
-            verified: false,
-            city: 'Tashkent',
-            role: 'Citizen',
-            trustScore: 95,
-            joinedDate: 'Bugun',
-          };
-        }
+      if (!account) {
+        const rawName = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
+        const formattedName = rawName
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+
+        account = {
+          id: `user-${Date.now()}`,
+          name: formattedName || 'Foydalanuvchi',
+          email: cleanEmail,
+          phone: '+998 90 000 00 00',
+          avatar: avatarUrl,
+          verified: true,
+          city: 'Tashkent',
+          role: 'Verified Citizen',
+          trustScore: 98,
+          joinedDate: 'Bugun',
+        };
+        storageService.saveAccount(account);
+      } else if (selectedAvatar && account.avatar !== selectedAvatar) {
+        account = { ...account, avatar: selectedAvatar };
         storageService.saveAccount(account);
       }
 
@@ -133,81 +92,42 @@ export default function LoginPage() {
   };
 
   const handleQuickDemoUser = (userType) => {
-    let account = null;
-    if (userType === 'azizbek') {
-      setEmail('azizbek.r@example.uz');
-      setPassword('demo1234');
-      account = storageService.findAccountByEmail('azizbek.r@example.uz') || {
-        id: 'user-azizbek',
-        name: 'Azizbek Rakhimov',
-        email: 'azizbek.r@example.uz',
+    let targetEmail = '';
+    if (userType === 'azizbek') targetEmail = 'azizbek.r@example.uz';
+    else if (userType === 'malika') targetEmail = 'malika.u@example.uz';
+    else if (userType === 'sherzod') targetEmail = 'sherzod.aliyev@example.uz';
+    else if (userType === 'jasur') targetEmail = 'jasur.m@example.uz';
+    else if (userType === 'nigora') targetEmail = 'nigora.k@example.uz';
+    else if (userType === 'sardor') targetEmail = 'sardor.aliyev@gmail.com';
+
+    let account = storageService.findAccountByEmail(targetEmail);
+    if (!account) {
+      account = {
+        id: `user-${userType}`,
+        name: userType.charAt(0).toUpperCase() + userType.slice(1),
+        email: targetEmail,
         phone: '+998 90 123 45 67',
-        avatar:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80',
+        avatar: getAvatarForEmail(targetEmail),
         verified: true,
         city: 'Tashkent',
         role: 'Verified Citizen',
         trustScore: 98,
         joinedDate: 'January 2025',
       };
-      addToast(
-        language === 'uz'
-          ? 'Azizbek Rakhimov sifatida tizimga kirildi'
-          : language === 'ru'
-          ? 'Вы вошли как Азизбек Рахимов'
-          : 'Logged in as Azizbek Rakhimov',
-        'success'
-      );
-    } else if (userType === 'sherzod') {
-      setEmail('sherzod.aliyev@example.uz');
-      setPassword('demo1234');
-      account = storageService.findAccountByEmail('sherzod.aliyev@example.uz') || {
-        id: 'user-sherzod',
-        name: 'Sherzod Aliyev',
-        email: 'sherzod.aliyev@example.uz',
-        phone: '+998 94 555 12 34',
-        avatar:
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80',
-        verified: true,
-        city: 'Tashkent',
-        role: 'Park Security Lead',
-        trustScore: 100,
-        joinedDate: 'December 2024',
-      };
-      addToast(
-        language === 'uz'
-          ? 'Sherzod Aliyev sifatida tizimga kirildi'
-          : language === 'ru'
-          ? 'Вы вошли как Шерзод Алиев'
-          : 'Logged in as Sherzod Aliyev',
-        'success'
-      );
-    } else {
-      setEmail('malika.u@example.uz');
-      setPassword('demo1234');
-      account = storageService.findAccountByEmail('malika.u@example.uz') || {
-        id: 'user-malika',
-        name: 'Malika Usmonova',
-        email: 'malika.u@example.uz',
-        phone: '+998 93 987 65 43',
-        avatar:
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80',
-        verified: true,
-        city: 'Samarkand',
-        role: 'Community Member',
-        trustScore: 99,
-        joinedDate: 'February 2025',
-      };
-      addToast(
-        language === 'uz'
-          ? 'Malika Usmonova sifatida tizimga kirildi'
-          : language === 'ru'
-          ? 'Вы вошли как Малика Усмонова'
-          : 'Logged in as Malika Usmonova',
-        'success'
-      );
+      storageService.saveAccount(account);
     }
+    setEmail(targetEmail);
+    setPassword('demo1234');
+    setSelectedAvatar(account.avatar);
     setCurrentUser(account);
+    addToast(
+      language === 'uz'
+        ? `${account.name} sifatida tizimga kirildi`
+        : language === 'ru'
+        ? `Вы вошли как ${account.name}`
+        : `Logged in as ${account.name}`,
+      'success'
+    );
     navigate('/');
   };
 
@@ -484,7 +404,7 @@ export default function LoginPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => handleQuickDemoUser('azizbek')}
@@ -544,6 +464,66 @@ export default function LoginPage() {
                       {language === 'uz' ? 'Xavfsizlik' : language === 'ru' ? 'Охрана' : 'Security'}
                     </div>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoUser('jasur')}
+                    className="group relative p-2 rounded-2xl border border-indigo-500/30 bg-indigo-950/30 hover:bg-indigo-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80"
+                        alt="Jasur"
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-indigo-400 shrink-0"
+                      />
+                      <span className="text-[11px] font-bold text-indigo-200 truncate group-hover:text-indigo-100">
+                        Jasur
+                      </span>
+                    </div>
+                    <div className="text-[9px] text-indigo-400/90 font-medium truncate">
+                      {language === 'uz' ? 'Fuqaro' : language === 'ru' ? 'Гражданин' : 'Citizen'}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoUser('nigora')}
+                    className="group relative p-2 rounded-2xl border border-purple-500/30 bg-purple-950/30 hover:bg-purple-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <img
+                        src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&h=100&q=80"
+                        alt="Nigora"
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-purple-400 shrink-0"
+                      />
+                      <span className="text-[11px] font-bold text-purple-200 truncate group-hover:text-purple-100">
+                        Nigora
+                      </span>
+                    </div>
+                    <div className="text-[9px] text-purple-400/90 font-medium truncate">
+                      {language === 'uz' ? 'Ko\'ngilli' : language === 'ru' ? 'Волонтер' : 'Volunteer'}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoUser('sardor')}
+                    className="group relative p-2 rounded-2xl border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <img
+                        src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=100&h=100&q=80"
+                        alt="Sardor"
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-cyan-400 shrink-0"
+                      />
+                      <span className="text-[11px] font-bold text-cyan-200 truncate group-hover:text-cyan-100">
+                        Sardor
+                      </span>
+                    </div>
+                    <div className="text-[9px] text-cyan-400/90 font-medium truncate">
+                      {language === 'uz' ? 'Talaba' : language === 'ru' ? 'Студент' : 'Student'}
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -553,26 +533,87 @@ export default function LoginPage() {
                   <div className="w-full border-t border-slate-800" />
                 </div>
                 <span className="relative bg-slate-900 px-3 text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-                  {language === 'uz' ? 'yoki pochta orqali' : language === 'ru' ? 'или через email' : 'or with email'}
+                  {language === 'uz' ? 'yoki boshqa akkaunt bilan kirish' : language === 'ru' ? 'или войти под другим аккаунтом' : 'or login with any account'}
                 </span>
               </div>
 
               {/* Standard Login Form */}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    {t('auth.email')}
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-300">
+                      {t('auth.email')}
+                    </label>
+                    <span className="text-[11px] text-blue-400 font-medium flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      {language === 'uz' ? 'Akkaunt fotosi' : language === 'ru' ? 'Фото аккаунта' : 'Account photo'}
+                    </span>
+                  </div>
+                  <div className="relative flex items-center">
+                    <div className="absolute left-2.5 flex items-center pointer-events-none z-10">
+                      <img
+                        src={selectedAvatar || (email.trim() ? (storageService.findAccountByEmail(email.trim().toLowerCase())?.avatar || getAvatarForEmail(email.trim())) : AVATAR_PRESETS[0])}
+                        alt="Avatar preview"
+                        className="w-6 h-6 rounded-full object-cover ring-2 ring-blue-500/60 shadow-sm"
+                      />
+                    </div>
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="azizbek.r@example.uz"
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                      }}
+                      placeholder="azizbek.r@example.uz yoki istalgan email"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-950/70 border border-slate-700/80 rounded-xl focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder:text-slate-600 transition-all"
+                      className="w-full pl-11 pr-4 py-2.5 text-xs sm:text-sm bg-slate-950/70 border border-slate-700/80 rounded-xl focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder:text-slate-600 transition-all"
                     />
+                  </div>
+
+                  {/* Real Portrait Avatar Preview & Chooser Strip */}
+                  <div className="mt-2.5 p-2 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                    <div className="flex items-center justify-between mb-1.5 px-0.5">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        {language === 'uz' ? 'Ushbu akkaunt surati:' : language === 'ru' ? 'Фотография этого профиля:' : 'Profile photo:'}
+                      </span>
+                      {selectedAvatar && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedAvatar(null)}
+                          className="text-[10px] text-blue-400 hover:text-blue-300 underline cursor-pointer"
+                        >
+                          {language === 'uz' ? 'Avtomatik tiklash' : 'Auto reset'}
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      {AVATAR_PRESETS.slice(0, 10).map((presetUrl, idx) => {
+                        const activeUrl = selectedAvatar || (email.trim() ? (storageService.findAccountByEmail(email.trim().toLowerCase())?.avatar || getAvatarForEmail(email.trim())) : AVATAR_PRESETS[0]);
+                        const isChosen = activeUrl === presetUrl;
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedAvatar(presetUrl)}
+                            className={`relative shrink-0 rounded-full transition-transform hover:scale-110 cursor-pointer ${
+                              isChosen
+                                ? 'ring-2 ring-blue-500 scale-105 shadow-md shadow-blue-500/40'
+                                : 'opacity-60 hover:opacity-100 ring-1 ring-slate-700'
+                            }`}
+                          >
+                            <img
+                              src={presetUrl}
+                              alt={`Face ${idx}`}
+                              className="w-7 h-7 rounded-full object-cover"
+                            />
+                            {isChosen && (
+                              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center text-[7px] text-white font-bold ring-1 ring-slate-900">
+                                ✓
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 

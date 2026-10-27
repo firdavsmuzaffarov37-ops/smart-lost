@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { storageService } from '../services/storageService';
 import LanguageSelector from '../components/common/LanguageSelector';
-import { citiesInUzbekistan, AVATAR_PRESETS } from '../data/initialData';
+import { citiesInUzbekistan, AVATAR_PRESETS, getAvatarForEmail } from '../data/initialData';
 import confetti from 'canvas-confetti';
 import {
   Compass,
@@ -91,9 +91,8 @@ export default function RegisterPage() {
     setTimeout(() => {
       const finalAvatar =
         selectedAvatar ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          name
-        )}&background=2563eb&color=fff&size=240&bold=true`;
+        getAvatarForEmail(email) ||
+        AVATAR_PRESETS[3];
 
       const newAccount = {
         id: `user-${Date.now()}`,
@@ -426,7 +425,7 @@ export default function RegisterPage() {
                     <img
                       src={
                         selectedAvatar ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=2563eb&color=fff&size=240&bold=true`
+                        (email.trim() ? getAvatarForEmail(email) : AVATAR_PRESETS[3])
                       }
                       alt="Avatar"
                       className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/50 shrink-0"

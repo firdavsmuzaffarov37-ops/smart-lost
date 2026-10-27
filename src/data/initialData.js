@@ -12,15 +12,53 @@ export const currentUser = {
 };
 
 export const AVATAR_PRESETS = [
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=240&h=240&q=80",
-  "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=240&h=240&q=80",
+  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80", // 0. Azizbek
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80", // 1. Malika
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80", // 2. Sherzod
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&h=240&q=80", // 3. Sevara
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&h=240&q=80", // 4. Jasur
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&h=240&q=80", // 5. Nigora
+  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=240&h=240&q=80", // 6. Javohir
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=240&h=240&q=80", // 7. Dilnoza
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=240&h=240&q=80", // 8. Sardor
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=240&h=240&q=80", // 9. Nodira
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&h=240&q=80", // 10. Bekzod
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=240&h=240&q=80", // 11. Madina
+  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=240&h=240&q=80", // 12. Bobur
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&h=240&q=80", // 13. Kamila
+  "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=240&h=240&q=80", // 14. Jamshid
+  "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=240&h=240&q=80", // 15. Zulfiya
 ];
+
+export function getAvatarForEmail(email) {
+  if (!email) return AVATAR_PRESETS[0];
+  const clean = email.trim().toLowerCase();
+
+  // Known specific profiles
+  if (clean.includes('azizbek')) return AVATAR_PRESETS[0];
+  if (clean.includes('malika')) return AVATAR_PRESETS[1];
+  if (clean.includes('sherzod')) return AVATAR_PRESETS[2];
+  if (clean.includes('jasur')) return AVATAR_PRESETS[4];
+  if (clean.includes('nigora')) return AVATAR_PRESETS[5];
+  if (clean.includes('javohir')) return AVATAR_PRESETS[6];
+  if (clean.includes('sardor')) return AVATAR_PRESETS[8];
+  if (clean.includes('nodira')) return AVATAR_PRESETS[9];
+  if (clean.includes('bekzod')) return AVATAR_PRESETS[10];
+  if (clean.includes('madina')) return AVATAR_PRESETS[11];
+  if (clean.includes('bobur')) return AVATAR_PRESETS[12];
+  if (clean.includes('kamila')) return AVATAR_PRESETS[13];
+  if (clean.includes('jamshid')) return AVATAR_PRESETS[14];
+  if (clean.includes('zulfiya')) return AVATAR_PRESETS[15];
+
+  // For any other email, hash it deterministically to pick one of the 16 real photos
+  let hash = 0;
+  for (let i = 0; i < clean.length; i++) {
+    hash = (hash << 5) - hash + clean.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % AVATAR_PRESETS.length;
+  return AVATAR_PRESETS[index];
+}
 
 export const initialAccounts = [
   {
@@ -28,7 +66,7 @@ export const initialAccounts = [
     name: "Azizbek Rakhimov",
     email: "azizbek.r@example.uz",
     phone: "+998 90 123 45 67",
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80",
+    avatar: AVATAR_PRESETS[0],
     verified: true,
     city: "Tashkent",
     role: "Verified Citizen",
@@ -40,7 +78,7 @@ export const initialAccounts = [
     name: "Malika Usmonova",
     email: "malika.u@example.uz",
     phone: "+998 93 987 65 43",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80",
+    avatar: AVATAR_PRESETS[1],
     verified: true,
     city: "Samarkand",
     role: "Community Member",
@@ -52,7 +90,7 @@ export const initialAccounts = [
     name: "Sherzod Aliyev",
     email: "sherzod.aliyev@example.uz",
     phone: "+998 94 555 12 34",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80",
+    avatar: AVATAR_PRESETS[2],
     verified: true,
     city: "Tashkent",
     role: "Park Security Lead",
@@ -64,7 +102,7 @@ export const initialAccounts = [
     name: "Jasur Mirzayev",
     email: "jasur.m@example.uz",
     phone: "+998 91 333 44 55",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&h=240&q=80",
+    avatar: AVATAR_PRESETS[4],
     verified: true,
     city: "Tashkent",
     role: "Verified Citizen",
@@ -76,12 +114,48 @@ export const initialAccounts = [
     name: "Nigora Karimova",
     email: "nigora.k@example.uz",
     phone: "+998 99 777 88 99",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&h=240&q=80",
+    avatar: AVATAR_PRESETS[5],
     verified: true,
     city: "Bukhara",
     role: "Active Volunteer",
     trustScore: 97,
     joinedDate: "March 2025",
+  },
+  {
+    id: "user-sardor",
+    name: "Sardor Aliyev",
+    email: "sardor.aliyev@gmail.com",
+    phone: "+998 97 123 45 67",
+    avatar: AVATAR_PRESETS[8],
+    verified: true,
+    city: "Tashkent",
+    role: "Verified Citizen",
+    trustScore: 100,
+    joinedDate: "Google Auth",
+  },
+  {
+    id: "user-javohir",
+    name: "Javohir Toshmatov",
+    email: "javohir.toshmatov@telegram.me",
+    phone: "+998 99 888 77 66",
+    avatar: AVATAR_PRESETS[6],
+    verified: true,
+    city: "Tashkent",
+    role: "Telegram Verified",
+    trustScore: 100,
+    joinedDate: "Telegram Auth",
+  },
+  {
+    id: "user-nodira",
+    name: "Nodira Saidova",
+    email: "nodira.s@example.uz",
+    phone: "+998 93 111 22 33",
+    avatar: AVATAR_PRESETS[9],
+    verified: true,
+    city: "Samarkand",
+    role: "Community Member",
+    trustScore: 98,
+    joinedDate: "February 2025",
   },
 ];
 
