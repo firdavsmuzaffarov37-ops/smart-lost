@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import NotificationDropdown from './NotificationDropdown';
 import LanguageSelector from './LanguageSelector';
@@ -16,6 +16,7 @@ import {
   X,
   PlusCircle,
   CheckCircle2,
+  LogOut,
 } from 'lucide-react';
 
 export default function Header() {
@@ -25,6 +26,7 @@ export default function Header() {
     t,
     language,
     currentUser,
+    logout,
     globalSearch,
     setGlobalSearch,
     setIsMobileMenuOpen,
@@ -200,80 +202,117 @@ export default function Header() {
           <Settings className="w-5 h-5" />
         </button>
 
-        {/* User Avatar Menu */}
-        <div className="relative" ref={userMenuRef}>
-          <button
-            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center gap-2 p-1 pl-1.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-colors focus:outline-hidden"
+        {/* User Avatar Menu / Sign In Button */}
+        {currentUser ? (
+          <div className="relative" ref={userMenuRef}>
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center gap-2 p-1 pl-1.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-colors focus:outline-hidden cursor-pointer"
+            >
+              <img
+                src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`}
+                alt={currentUser?.name || 'User'}
+                className="w-7 h-7 rounded-full object-cover"
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`;
+                }}
+              />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+            </button>
+
+            {isUserMenuOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+                  <img
+                    src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`}
+                    alt=""
+                    className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/20 shrink-0"
+                    onError={(e) => {
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`;
+                    }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                      <span className="truncate">{currentUser?.name || 'User'}</span>
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    </div>
+                    <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                      {currentUser?.email || 'user@example.uz'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      navigate('/my-reports');
+                    }}
+                    className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium transition-colors cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <span>{t('nav.myReports')}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      navigate('/settings');
+                    }}
+                    className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium transition-colors cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4 text-slate-400" />
+                    <span>{t('nav.settings')}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      navigate('/login');
+                    }}
+                    className="w-full px-4 py-2 text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2.5 font-medium transition-colors cursor-pointer"
+                  >
+                    <User className="w-4 h-4 text-blue-500" />
+                    <span>{language === 'uz' ? 'Akkauntni almashtirish' : language === 'ru' ? 'Сменить аккаунт' : 'Switch Account'}</span>
+                  </button>
+                </div>
+
+                <div className="border-t border-slate-100 pt-1">
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      logout();
+                      navigate('/login');
+                    }}
+                    className="w-full px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 font-bold transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 text-rose-500" />
+                    <span>{language === 'uz' ? 'Akkauntdan chiqish' : language === 'ru' ? 'Выйти из аккаунта' : 'Sign Out'}</span>
+                  </button>
+                </div>
+
+                <div className="border-t border-slate-100 pt-1">
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      resetAllData();
+                    }}
+                    className="w-full px-4 py-2 text-[11px] text-amber-600 hover:bg-amber-50 flex items-center gap-2.5 font-medium transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{t('common.resetData')}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
           >
-            <img
-              src={currentUser?.avatar}
-              alt={currentUser?.name}
-              className="w-7 h-7 rounded-full object-cover"
-            />
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
-          </button>
-
-          {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="px-4 py-3 border-b border-slate-100">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
-                  <span>{currentUser?.name}</span>
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                </div>
-                <div className="text-[11px] text-slate-500 truncate mt-0.5">
-                  {currentUser?.email}
-                </div>
-              </div>
-
-              <div className="py-1">
-                <button
-                  onClick={() => {
-                    setIsUserMenuOpen(false);
-                    navigate('/my-reports');
-                  }}
-                  className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium transition-colors"
-                >
-                  <FileText className="w-4 h-4 text-slate-400" />
-                  <span>{t('nav.myReports')}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsUserMenuOpen(false);
-                    navigate('/settings');
-                  }}
-                  className="w-full px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium transition-colors"
-                >
-                  <Settings className="w-4 h-4 text-slate-400" />
-                  <span>{t('nav.settings')}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsUserMenuOpen(false);
-                    navigate('/login');
-                  }}
-                  className="w-full px-4 py-2 text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2.5 font-medium transition-colors"
-                >
-                  <User className="w-4 h-4 text-blue-500" />
-                  <span>{t('nav.login')} / {t('nav.register')}</span>
-                </button>
-              </div>
-
-              <div className="border-t border-slate-100 pt-1">
-                <button
-                  onClick={() => {
-                    setIsUserMenuOpen(false);
-                    resetAllData();
-                  }}
-                  className="w-full px-4 py-2 text-xs text-amber-600 hover:bg-amber-50 flex items-center gap-2.5 font-medium transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4 text-amber-500" />
-                  <span>{t('common.resetData')}</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            <User className="w-3.5 h-3.5" />
+            <span>{language === 'uz' ? 'Kirish' : language === 'ru' ? 'Войти' : 'Sign In'}</span>
+          </Link>
+        )}
       </div>
     </header>
   );

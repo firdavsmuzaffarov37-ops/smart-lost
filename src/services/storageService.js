@@ -1,10 +1,11 @@
-import { sampleReports, sampleNotifications, sampleConversations, currentUser } from '../data/initialData';
+import { sampleReports, sampleNotifications, sampleConversations, currentUser, initialAccounts } from '../data/initialData';
 
 const STORAGE_KEYS = {
   REPORTS: 'findit_reports_v1',
   NOTIFICATIONS: 'findit_notifications_v1',
   CONVERSATIONS: 'findit_conversations_v1',
   USER: 'findit_user_v1',
+  ACCOUNTS: 'findit_accounts_v1',
   LANGUAGE: 'findit_lang_v1',
 };
 
@@ -20,8 +21,11 @@ export const storageService = {
     if (!localStorage.getItem(STORAGE_KEYS.CONVERSATIONS)) {
       localStorage.setItem(STORAGE_KEYS.CONVERSATIONS, JSON.stringify(sampleConversations));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.USER)) {
+    if (localStorage.getItem(STORAGE_KEYS.USER) === null && !localStorage.getItem('findit_has_logged_out')) {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.ACCOUNTS)) {
+      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(initialAccounts));
     }
     if (!localStorage.getItem(STORAGE_KEYS.LANGUAGE)) {
       localStorage.setItem(STORAGE_KEYS.LANGUAGE, 'en');
@@ -223,20 +227,75 @@ export const storageService = {
     return newConv;
   },
 
+  getAccounts() {
+    this.init();
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.ACCOUNTS);
+      return data ? JSON.parse(data) : initialAccounts;
+    } catch {
+      return initialAccounts;
+    }
+  },
+
+  findAccountByEmail(email) {
+    if (!email) return null;
+    const clean = email.trim().toLowerCase();
+    const accounts = this.getAccounts();
+    return accounts.find((a) => a.email && a.email.toLowerCase() === clean) || null;
+  },
+
+  saveAccount(account) {
+    if (!account) return;
+    const accounts = this.getAccounts();
+    const index = accounts.findIndex(
+      (a) =>
+        (account.id && a.id === account.id) ||
+        (account.email && a.email && a.email.toLowerCase() === account.email.toLowerCase())
+    );
+    let updated;
+    if (index >= 0) {
+      updated = [...accounts];
+      updated[index] = { ...updated[index], ...account };
+    } else {
+      updated = [...accounts, account];
+    }
+    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(updated));
+    return updated;
+  },
+
   getCurrentUser() {
     this.init();
     try {
       const data = localStorage.getItem(STORAGE_KEYS.USER);
-      return data ? JSON.parse(data) : currentUser;
+      if (!data || data === 'null' || data === 'undefined') return null;
+      return JSON.parse(data);
     } catch {
-      return currentUser;
+      return null;
     }
+  },
+
+  saveCurrentUser(user) {
+    if (!user) {
+      this.clearCurrentUser();
+      return null;
+    }
+    localStorage.removeItem('findit_has_logged_out');
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    this.saveAccount(user);
+    return user;
+  },
+
+  clearCurrentUser() {
+    localStorage.setItem('findit_has_logged_out', 'true');
+    localStorage.setItem(STORAGE_KEYS.USER, 'null');
   },
 
   updateCurrentUser(patch) {
     const user = this.getCurrentUser();
+    if (!user) return null;
     const updated = { ...user, ...patch };
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
+    this.saveAccount(updated);
     return updated;
   },
 
@@ -254,6 +313,7 @@ export const storageService = {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(sampleNotifications));
     localStorage.setItem(STORAGE_KEYS.CONVERSATIONS, JSON.stringify(sampleConversations));
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser));
+    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(initialAccounts));
     localStorage.setItem(STORAGE_KEYS.LANGUAGE, 'en');
     return {
       reports: sampleReports,
@@ -263,3 +323,4 @@ export const storageService = {
     };
   },
 };
+

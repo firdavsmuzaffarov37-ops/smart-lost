@@ -80,6 +80,28 @@ export default function MyReportsPage() {
     setEditingItem(null);
   };
 
+  if (!currentUser) {
+    return (
+      <div className="p-8 text-center bg-white rounded-3xl border border-slate-200/80 shadow-xs max-w-md mx-auto my-12 space-y-4">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <FileText className="w-7 h-7" />
+        </div>
+        <h2 className="text-lg font-bold text-slate-900">
+          {t('nav.myReports')}
+        </h2>
+        <p className="text-xs text-slate-500">
+          {t('auth.loginSubtitle') || "O'z e'lonlaringizni ko'rish va boshqarish uchun profilingizga kiring."}
+        </p>
+        <button
+          onClick={() => navigate('/login')}
+          className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer"
+        >
+          {t('nav.login')}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Profile Overview Card */}
@@ -87,9 +109,12 @@ export default function MyReportsPage() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <img
-              src={currentUser?.avatar}
-              alt={currentUser?.name}
+              src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`}
+              alt={currentUser?.name || 'User'}
               className="w-16 h-16 rounded-2xl object-cover border-2 border-slate-200 shadow-xs"
+              onError={(e) => {
+                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`;
+              }}
             />
             <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full ring-2 ring-white flex items-center justify-center text-white text-[10px]">
               ✓

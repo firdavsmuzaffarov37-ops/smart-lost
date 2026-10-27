@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { storageService } from '../services/storageService';
 import LanguageSelector from '../components/common/LanguageSelector';
 import {
   Compass,
@@ -44,64 +45,99 @@ export default function LoginPage() {
 
     setIsLoading(true);
     setTimeout(() => {
-      // If logging in with Malika's email
-      if (email.toLowerCase().includes('malika')) {
-        setCurrentUser({
-          id: 'user-malika',
-          name: 'Malika Usmonova',
-          email,
-          phone: '+998 93 987 65 43',
-          avatar:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80',
-          verified: true,
-          city: 'Tashkent',
-          role: 'Verified Citizen',
-          trustScore: 99,
-          joinedDate: 'February 2025',
-        });
-        addToast(
-          language === 'uz'
-            ? 'Xush kelibsiz, Malika Usmonova!'
-            : language === 'ru'
-            ? 'Добро пожаловать, Малика Усмонова!'
-            : 'Welcome back, Malika Usmonova!',
-          'success'
-        );
-      } else {
-        // Default to Azizbek or custom user
-        const userName = email.split('@')[0] || 'Azizbek Rakhimov';
-        setCurrentUser({
-          id: 'user-azizbek',
-          name: userName.charAt(0).toUpperCase() + userName.slice(1),
-          email,
-          phone: '+998 90 123 45 67',
-          avatar:
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80',
-          verified: true,
-          city: 'Tashkent',
-          role: 'Verified Citizen',
-          trustScore: 98,
-          joinedDate: 'January 2025',
-        });
-        addToast(
-          language === 'uz'
-            ? 'Xush kelibsiz, Azizbek!'
-            : language === 'ru'
-            ? 'Добро пожаловать, Азизбек!'
-            : 'Welcome back, Azizbek!',
-          'success'
-        );
+      const cleanEmail = email.trim().toLowerCase();
+      let account = storageService.findAccountByEmail(cleanEmail);
+
+      if (!account) {
+        if (cleanEmail.includes('malika')) {
+          account = {
+            id: 'user-malika',
+            name: 'Malika Usmonova',
+            email: cleanEmail,
+            phone: '+998 93 987 65 43',
+            avatar:
+              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80',
+            verified: true,
+            city: 'Samarkand',
+            role: 'Community Member',
+            trustScore: 99,
+            joinedDate: 'February 2025',
+          };
+        } else if (cleanEmail.includes('azizbek')) {
+          account = {
+            id: 'user-azizbek',
+            name: 'Azizbek Rakhimov',
+            email: cleanEmail,
+            phone: '+998 90 123 45 67',
+            avatar:
+              'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80',
+            verified: true,
+            city: 'Tashkent',
+            role: 'Verified Citizen',
+            trustScore: 98,
+            joinedDate: 'January 2025',
+          };
+        } else if (cleanEmail.includes('sherzod')) {
+          account = {
+            id: 'user-sherzod',
+            name: 'Sherzod Aliyev',
+            email: cleanEmail,
+            phone: '+998 94 555 12 34',
+            avatar:
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80',
+            verified: true,
+            city: 'Tashkent',
+            role: 'Park Security Lead',
+            trustScore: 100,
+            joinedDate: 'December 2024',
+          };
+        } else {
+          // Custom new user login
+          const rawName = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
+          const formattedName = rawName
+            .split(' ')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            formattedName || 'User'
+          )}&background=2563eb&color=fff&size=240&bold=true`;
+
+          account = {
+            id: `user-${Date.now()}`,
+            name: formattedName || 'Foydalanuvchi',
+            email: cleanEmail,
+            phone: '+998 90 000 00 00',
+            avatar: avatarUrl,
+            verified: false,
+            city: 'Tashkent',
+            role: 'Citizen',
+            trustScore: 95,
+            joinedDate: 'Bugun',
+          };
+        }
+        storageService.saveAccount(account);
       }
+
+      setCurrentUser(account);
+      addToast(
+        language === 'uz'
+          ? `Xush kelibsiz, ${account.name}!`
+          : language === 'ru'
+          ? `Добро пожаловать, ${account.name}!`
+          : `Welcome back, ${account.name}!`,
+        'success'
+      );
       setIsLoading(false);
       navigate('/');
     }, 400);
   };
 
   const handleQuickDemoUser = (userType) => {
+    let account = null;
     if (userType === 'azizbek') {
       setEmail('azizbek.r@example.uz');
       setPassword('demo1234');
-      setCurrentUser({
+      account = storageService.findAccountByEmail('azizbek.r@example.uz') || {
         id: 'user-azizbek',
         name: 'Azizbek Rakhimov',
         email: 'azizbek.r@example.uz',
@@ -113,19 +149,43 @@ export default function LoginPage() {
         role: 'Verified Citizen',
         trustScore: 98,
         joinedDate: 'January 2025',
-      });
+      };
       addToast(
         language === 'uz'
-          ? 'Azizbek Rakhimov (Ega) sifatida tizimga kirildi'
+          ? 'Azizbek Rakhimov sifatida tizimga kirildi'
           : language === 'ru'
-          ? 'Вы вошли как Азизбек Рахимов (Владелец)'
-          : 'Logged in as Azizbek Rakhimov (Owner)',
+          ? 'Вы вошли как Азизбек Рахимов'
+          : 'Logged in as Azizbek Rakhimov',
+        'success'
+      );
+    } else if (userType === 'sherzod') {
+      setEmail('sherzod.aliyev@example.uz');
+      setPassword('demo1234');
+      account = storageService.findAccountByEmail('sherzod.aliyev@example.uz') || {
+        id: 'user-sherzod',
+        name: 'Sherzod Aliyev',
+        email: 'sherzod.aliyev@example.uz',
+        phone: '+998 94 555 12 34',
+        avatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80',
+        verified: true,
+        city: 'Tashkent',
+        role: 'Park Security Lead',
+        trustScore: 100,
+        joinedDate: 'December 2024',
+      };
+      addToast(
+        language === 'uz'
+          ? 'Sherzod Aliyev sifatida tizimga kirildi'
+          : language === 'ru'
+          ? 'Вы вошли как Шерзод Алиев'
+          : 'Logged in as Sherzod Aliyev',
         'success'
       );
     } else {
       setEmail('malika.u@example.uz');
       setPassword('demo1234');
-      setCurrentUser({
+      account = storageService.findAccountByEmail('malika.u@example.uz') || {
         id: 'user-malika',
         name: 'Malika Usmonova',
         email: 'malika.u@example.uz',
@@ -133,33 +193,68 @@ export default function LoginPage() {
         avatar:
           'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&h=240&q=80',
         verified: true,
-        city: 'Tashkent',
-        role: 'Verified Citizen',
+        city: 'Samarkand',
+        role: 'Community Member',
         trustScore: 99,
         joinedDate: 'February 2025',
-      });
+      };
       addToast(
         language === 'uz'
-          ? 'Malika Usmonova (Topuvchi) sifatida tizimga kirildi'
+          ? 'Malika Usmonova sifatida tizimga kirildi'
           : language === 'ru'
-          ? 'Вы вошли как Малика Усмонова (Нашедший)'
+          ? 'Вы вошли как Малика Усмонова'
           : 'Logged in as Malika Usmonova',
         'success'
       );
     }
+    setCurrentUser(account);
     navigate('/');
   };
 
   const handleSocialLogin = (provider) => {
+    let socialAccount = null;
+    if (provider === 'Google') {
+      const email = 'sardor.aliyev@gmail.com';
+      socialAccount = storageService.findAccountByEmail(email) || {
+        id: 'user-google-sardor',
+        name: 'Sardor Aliyev',
+        email,
+        phone: '+998 97 123 45 67',
+        avatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80',
+        verified: true,
+        city: 'Tashkent',
+        role: 'Verified Citizen',
+        trustScore: 100,
+        joinedDate: 'Google Auth',
+      };
+    } else {
+      const email = 'javohir.toshmatov@telegram.me';
+      socialAccount = storageService.findAccountByEmail(email) || {
+        id: 'user-tg-javohir',
+        name: 'Javohir Toshmatov',
+        email,
+        phone: '+998 99 888 77 66',
+        avatar:
+          'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=240&h=240&q=80',
+        verified: true,
+        city: 'Tashkent',
+        role: 'Telegram Verified',
+        trustScore: 100,
+        joinedDate: 'Telegram Auth',
+      };
+    }
+    storageService.saveAccount(socialAccount);
+    setCurrentUser(socialAccount);
     addToast(
       language === 'uz'
-        ? `${provider} orqali tezkor kirish muvaffaqiyatli amalga oshirildi!`
+        ? `${socialAccount.name} (${provider}) akkaunti orqali tizimga kirildi!`
         : language === 'ru'
-        ? `Вход через ${provider} выполнен успешно!`
-        : `Signed in via ${provider} successfully!`,
+        ? `Вход через ${provider} выполнен (${socialAccount.name})!`
+        : `Logged in via ${provider} as ${socialAccount.name}!`,
       'success'
     );
-    handleQuickDemoUser('azizbek');
+    navigate('/');
   };
 
   const handleForgotPassword = (e) => {
@@ -389,44 +484,64 @@ export default function LoginPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => handleQuickDemoUser('azizbek')}
-                    className="group relative p-2.5 rounded-2xl border border-blue-500/30 bg-blue-950/30 hover:bg-blue-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
+                    className="group relative p-2 rounded-2xl border border-blue-500/30 bg-blue-950/30 hover:bg-blue-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-1.5 mb-1">
                       <img
                         src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&h=100&q=80"
                         alt="Azizbek"
-                        className="w-6 h-6 rounded-full object-cover ring-1 ring-blue-400"
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-blue-400 shrink-0"
                       />
-                      <span className="text-xs font-bold text-blue-200 truncate group-hover:text-blue-100">
-                        Azizbek R.
+                      <span className="text-[11px] font-bold text-blue-200 truncate group-hover:text-blue-100">
+                        Azizbek
                       </span>
                     </div>
-                    <div className="text-[10px] text-blue-400/80 font-medium">
-                      {language === 'uz' ? 'Ega (Owner) • 98%' : language === 'ru' ? 'Владелец • 98%' : 'Owner • 98%'}
+                    <div className="text-[9px] text-blue-400/80 font-medium truncate">
+                      {language === 'uz' ? 'Ega • 98%' : language === 'ru' ? 'Владелец' : 'Owner'}
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleQuickDemoUser('malika')}
-                    className="group relative p-2.5 rounded-2xl border border-slate-700/80 bg-slate-800/40 hover:bg-slate-800/80 text-left transition-all hover:scale-[1.02] cursor-pointer"
+                    className="group relative p-2 rounded-2xl border border-emerald-500/30 bg-emerald-950/30 hover:bg-emerald-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-1.5 mb-1">
                       <img
                         src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80"
                         alt="Malika"
-                        className="w-6 h-6 rounded-full object-cover ring-1 ring-emerald-400"
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-emerald-400 shrink-0"
                       />
-                      <span className="text-xs font-bold text-slate-200 truncate group-hover:text-white">
-                        Malika U.
+                      <span className="text-[11px] font-bold text-emerald-200 truncate group-hover:text-emerald-100">
+                        Malika
                       </span>
                     </div>
-                    <div className="text-[10px] text-emerald-400/90 font-medium">
-                      {language === 'uz' ? 'Topuvchi • 99%' : language === 'ru' ? 'Нашедший • 99%' : 'Finder • 99%'}
+                    <div className="text-[9px] text-emerald-400/90 font-medium truncate">
+                      {language === 'uz' ? 'Topuvchi' : language === 'ru' ? 'Нашедший' : 'Finder'}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoUser('sherzod')}
+                    className="group relative p-2 rounded-2xl border border-amber-500/30 bg-amber-950/30 hover:bg-amber-900/40 text-left transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <img
+                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80"
+                        alt="Sherzod"
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-amber-400 shrink-0"
+                      />
+                      <span className="text-[11px] font-bold text-amber-200 truncate group-hover:text-amber-100">
+                        Sherzod
+                      </span>
+                    </div>
+                    <div className="text-[9px] text-amber-400/90 font-medium truncate">
+                      {language === 'uz' ? 'Xavfsizlik' : language === 'ru' ? 'Охрана' : 'Security'}
                     </div>
                   </button>
                 </div>

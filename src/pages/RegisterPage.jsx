@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { storageService } from '../services/storageService';
 import LanguageSelector from '../components/common/LanguageSelector';
-import { citiesInUzbekistan } from '../data/initialData';
+import { citiesInUzbekistan, AVATAR_PRESETS } from '../data/initialData';
 import confetti from 'canvas-confetti';
 import {
   Compass,
@@ -30,6 +31,7 @@ export default function RegisterPage() {
   const [city, setCity] = useState('Tashkent');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_PRESETS[3]);
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -87,19 +89,27 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     setTimeout(() => {
-      setCurrentUser({
+      const finalAvatar =
+        selectedAvatar ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          name
+        )}&background=2563eb&color=fff&size=240&bold=true`;
+
+      const newAccount = {
         id: `user-${Date.now()}`,
         name,
-        email,
+        email: email.trim().toLowerCase(),
         phone: phone.trim() || '+998 90 000 00 00',
-        avatar:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&h=240&q=80',
+        avatar: finalAvatar,
         verified: true,
         city,
         role: 'Community Member',
         trustScore: 100,
         joinedDate: 'Just now',
-      });
+      };
+
+      storageService.saveAccount(newAccount);
+      setCurrentUser(newAccount);
 
       // Celebration Confetti
       try {
@@ -128,20 +138,41 @@ export default function RegisterPage() {
   };
 
   const handleSocialRegister = (provider) => {
-    const demoName = provider === 'Google' ? 'Sardor Aliyev' : 'Javohir Toshmatov';
-    setCurrentUser({
-      id: `user-social-${Date.now()}`,
-      name: demoName,
-      email: `${demoName.toLowerCase().replace(' ', '.')}@example.uz`,
-      phone: '+998 97 123 45 67',
-      avatar:
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80',
-      verified: true,
-      city: 'Tashkent',
-      role: 'Verified Citizen',
-      trustScore: 100,
-      joinedDate: 'Just now',
-    });
+    let socialAccount = null;
+    if (provider === 'Google') {
+      const email = 'sardor.aliyev@gmail.com';
+      socialAccount = {
+        id: `user-google-${Date.now()}`,
+        name: 'Sardor Aliyev',
+        email,
+        phone: '+998 97 123 45 67',
+        avatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80',
+        verified: true,
+        city: 'Tashkent',
+        role: 'Verified Citizen',
+        trustScore: 100,
+        joinedDate: 'Google Auth',
+      };
+    } else {
+      const email = 'javohir.toshmatov@telegram.me';
+      socialAccount = {
+        id: `user-tg-${Date.now()}`,
+        name: 'Javohir Toshmatov',
+        email,
+        phone: '+998 99 888 77 66',
+        avatar:
+          'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=240&h=240&q=80',
+        verified: true,
+        city: 'Tashkent',
+        role: 'Telegram Verified',
+        trustScore: 100,
+        joinedDate: 'Telegram Auth',
+      };
+    }
+
+    storageService.saveAccount(socialAccount);
+    setCurrentUser(socialAccount);
 
     try {
       confetti({
@@ -365,6 +396,57 @@ export default function RegisterPage() {
                       required
                       className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-950/70 border border-slate-700/80 rounded-xl focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder:text-slate-600 transition-all"
                     />
+                  </div>
+                </div>
+
+                {/* Profile Photo / Avatar Picker */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-300">
+                      {language === 'uz' ? 'Profil rasmi (Avatar)' : language === 'ru' ? 'Фото профиля (Аватар)' : 'Profile Avatar'}
+                    </label>
+                    <label className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">
+                      {language === 'uz' ? '+ O\'z rasmingiz' : language === 'ru' ? '+ Свое фото' : '+ Custom'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = () => setSelectedAvatar(reader.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 rounded-2xl bg-slate-950/70 border border-slate-800">
+                    <img
+                      src={
+                        selectedAvatar ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=2563eb&color=fff&size=240&bold=true`
+                      }
+                      alt="Avatar"
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/50 shrink-0"
+                    />
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none flex-1">
+                      {AVATAR_PRESETS.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedAvatar(preset)}
+                          className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                            selectedAvatar === preset
+                              ? 'border-blue-400 scale-110 ring-2 ring-blue-400/50'
+                              : 'border-transparent opacity-65 hover:opacity-100'
+                          }`}
+                        >
+                          <img src={preset} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

@@ -268,36 +268,62 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* User Profile Pill */}
+        {/* User Profile Pill / Login CTA */}
         <div className="p-3 border-t border-slate-200/80 bg-white/70">
-          <div
-            onClick={() => {
-              navigate('/my-reports');
-              handleNavClick();
-            }}
-            className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-100/80 transition-colors cursor-pointer group"
-          >
-            <div className="relative">
-              <img
-                src={currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&h=240&q=80'}
-                alt={currentUser?.name || 'User'}
-                className="w-9 h-9 rounded-full object-cover border border-slate-200"
-              />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <p className="text-xs font-bold text-slate-900 truncate">
-                  {currentUser?.name || 'Azizbek R.'}
-                </p>
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+          {currentUser ? (
+            <div
+              onClick={() => {
+                navigate('/my-reports');
+                handleNavClick();
+              }}
+              className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-100/80 transition-colors cursor-pointer group"
+            >
+              <div className="relative">
+                <img
+                  src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`}
+                  alt={currentUser?.name || 'User'}
+                  className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                  onError={(e) => {
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || 'User')}&background=2563eb&color=fff&size=240&bold=true`;
+                  }}
+                />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white" />
               </div>
-              <p className="text-[11px] text-slate-500 truncate">
-                {currentUser?.role || t('sidebar.verifiedCitizen')}
-              </p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1">
+                  <p className="text-xs font-bold text-slate-900 truncate">
+                    {currentUser?.name || 'User'}
+                  </p>
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                </div>
+                <p className="text-[11px] text-slate-500 truncate">
+                  {currentUser?.role || t('sidebar.verifiedCitizen')}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-          </div>
+          ) : (
+            <div
+              onClick={() => {
+                navigate('/login');
+                handleNavClick();
+              }}
+              className="flex items-center gap-3 p-2.5 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/60 transition-colors cursor-pointer group"
+            >
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <LogIn className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-blue-900">
+                  {t('nav.login')}
+                </p>
+                <p className="text-[10px] text-blue-600 truncate">
+                  {t('auth.registerTab') || "Kirish / Ro'yxatdan o'tish"}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          )}
         </div>
       </aside>
     </>

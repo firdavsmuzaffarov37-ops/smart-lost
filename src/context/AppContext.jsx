@@ -193,6 +193,40 @@ export function AppProvider({ children }) {
     addToast('All demo data has been reset to original state.', 'info');
   };
 
+  const handleSetCurrentUser = (userOrFn) => {
+    if (typeof userOrFn === 'function') {
+      setCurrentUser((prev) => {
+        const next = userOrFn(prev);
+        if (next) storageService.saveCurrentUser(next);
+        return next;
+      });
+    } else {
+      setCurrentUser(userOrFn);
+      if (userOrFn) {
+        storageService.saveCurrentUser(userOrFn);
+      }
+    }
+  };
+
+  const updateCurrentUser = (patch) => {
+    const updated = storageService.updateCurrentUser(patch);
+    setCurrentUser(updated);
+    return updated;
+  };
+
+  const logout = () => {
+    storageService.clearCurrentUser();
+    setCurrentUser(null);
+    addToast(
+      language === 'uz'
+        ? "Akkauntdan chiqildi. Shaxsiy ma'lumotlar tozalandi."
+        : language === 'ru'
+        ? 'Вы вышли из системы. Личные данные очищены.'
+        : 'Logged out. Personal session cleared.',
+      'info'
+    );
+  };
+
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
   const unreadMessagesCount = conversations.reduce((acc, c) => acc + (c.unread || 0), 0);
 
@@ -203,7 +237,9 @@ export function AppProvider({ children }) {
         notifications,
         conversations,
         currentUser,
-        setCurrentUser,
+        setCurrentUser: handleSetCurrentUser,
+        updateCurrentUser,
+        logout,
         language,
         setLanguage,
         t,

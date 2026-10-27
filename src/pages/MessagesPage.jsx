@@ -15,14 +15,25 @@ import {
 
 export default function MessagesPage() {
   const navigate = useNavigate();
-  const { conversations, currentUser, sendMessage } = useApp();
+  const { conversations, currentUser, sendMessage, t, language } = useApp();
+
+  // Filter conversations strictly for the logged-in user
+  const userConversations = conversations.filter((c) => {
+    if (!currentUser) return false;
+    if (c.userId && c.userId === currentUser.id) return true;
+    if (c.messages?.some((m) => m.senderId === currentUser.id)) return true;
+    if (currentUser.id === 'user-azizbek' && c.id === 'conv-001') return true;
+    if (currentUser.id === 'user-malika' && c.id === 'conv-002') return true;
+    return false;
+  });
+
   const [activeConversationId, setActiveConversationId] = useState(
-    conversations[0]?.id || ''
+    userConversations[0]?.id || ''
   );
   const [inputText, setInputText] = useState('');
 
   const activeConv =
-    conversations.find((c) => c.id === activeConversationId) || conversations[0];
+    userConversations.find((c) => c.id === activeConversationId) || userConversations[0];
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -37,6 +48,32 @@ export default function MessagesPage() {
     'I can pick it up today at the security desk.',
     'Thank you so much for keeping it safe!',
   ];
+
+  if (!currentUser) {
+    return (
+      <div className="p-8 text-center bg-white rounded-3xl border border-slate-200/80 shadow-xs max-w-md mx-auto my-12 space-y-4">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <MessageSquare className="w-7 h-7" />
+        </div>
+        <h2 className="text-lg font-bold text-slate-900">
+          {t('nav.messages')}
+        </h2>
+        <p className="text-xs text-slate-500">
+          {language === 'uz'
+            ? "Xabarlarni o'qish va muloqot qilish uchun tizimga kiring."
+            : language === 'ru'
+            ? 'Войдите в систему для просмотра сообщений.'
+            : 'Please sign in to access your private messages.'}
+        </p>
+        <button
+          onClick={() => navigate('/login')}
+          className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer"
+        >
+          {t('nav.login')}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
@@ -57,7 +94,7 @@ export default function MessagesPage() {
           <div className="p-4 border-b border-slate-200/70 bg-white">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-blue-600" />
-              Inbox ({conversations.length})
+              Inbox ({userConversations.length})
             </h2>
             <p className="text-[11px] text-slate-400 mt-0.5">
               Direct discussions with finders and owners
@@ -65,12 +102,12 @@ export default function MessagesPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
-            {conversations.length === 0 ? (
+            {userConversations.length === 0 ? (
               <div className="p-8 text-center text-slate-400 text-xs">
-                No active conversations yet.
+                {language === 'uz' ? "Hozircha xabarlar yo'q." : "No active conversations yet."}
               </div>
             ) : (
-              conversations.map((conv) => {
+              userConversations.map((conv) => {
                 const isActive = conv.id === activeConv?.id;
                 return (
                   <div
