@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import NotificationDropdown from './NotificationDropdown';
 import LanguageSelector from './LanguageSelector';
+import TelegramModal from './TelegramModal';
 import {
   Search,
   Plus,
@@ -17,6 +18,8 @@ import {
   PlusCircle,
   CheckCircle2,
   LogOut,
+  Send,
+  Smartphone,
 } from 'lucide-react';
 
 export default function Header() {
@@ -35,6 +38,7 @@ export default function Header() {
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
   const userMenuRef = useRef(null);
   const reportModalRef = useRef(null);
 
@@ -187,6 +191,16 @@ export default function Header() {
           )}
         </div>
 
+        {/* Telegram Bot Action */}
+        <button
+          onClick={() => setIsTelegramModalOpen(true)}
+          className="p-2 rounded-xl text-sky-500 hover:text-sky-600 hover:bg-sky-50 transition-colors flex items-center gap-1 cursor-pointer"
+          title="Telegram Bot bildirishnomalari"
+        >
+          <Send className="w-4 h-4" />
+          <span className="text-[11px] font-bold hidden md:inline">Bot</span>
+        </button>
+
         {/* Notifications */}
         <NotificationDropdown />
 
@@ -314,6 +328,12 @@ export default function Header() {
           </Link>
         )}
       </div>
+
+      {/* Telegram Bot Modal */}
+      <TelegramModal
+        isOpen={isTelegramModalOpen}
+        onClose={() => setIsTelegramModalOpen(false)}
+      />
     </header>
   );
 }

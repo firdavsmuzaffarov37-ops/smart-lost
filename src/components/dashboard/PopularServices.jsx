@@ -1,17 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import TelegramModal from '../common/TelegramModal';
+import QrTagModal from '../common/QrTagModal';
+import RewardPaymentModal from '../common/RewardPaymentModal';
 import {
   Search,
   CheckSquare,
   MapPin,
   Sparkles,
   ArrowRight,
+  QrCode,
+  Send,
+  CreditCard,
+  ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function PopularServices() {
   const navigate = useNavigate();
   const { t, reports } = useApp();
+
+  const [isTelegramOpen, setIsTelegramOpen] = useState(false);
+  const [isQrOpen, setIsQrOpen] = useState(false);
+  const [isRewardOpen, setIsRewardOpen] = useState(false);
 
   const lostCount = reports.filter((r) => r.type === 'lost').length;
   const foundCount = reports.filter((r) => r.type === 'found').length;
@@ -116,6 +128,84 @@ export default function PopularServices() {
           );
         })}
       </div>
+
+      {/* Smart Platform Innovations (QR Tag, Telegram Bot, Payme/Click Escrow) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
+        {/* Smart QR Tag Card */}
+        <div
+          onClick={() => setIsQrOpen(true)}
+          className="p-4 rounded-2xl bg-gradient-to-br from-violet-900/10 via-purple-500/5 to-indigo-900/10 border border-violet-200/80 hover:border-violet-300 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex items-start gap-3.5"
+        >
+          <div className="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+            <QrCode className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-0.5">
+              <h4 className="text-xs font-bold text-slate-900 group-hover:text-violet-700 transition-colors">
+                Smart QR Stikerlar
+              </h4>
+              <span className="text-[10px] font-bold text-violet-700 bg-violet-100 px-2 py-0.5 rounded-full">
+                Yangi
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-snug">
+              Hamyon, kalit yoki sumkaga yopishtirish uchun xavfsiz QR-kod stikeri
+            </p>
+          </div>
+        </div>
+
+        {/* Telegram Bot Card */}
+        <div
+          onClick={() => setIsTelegramOpen(true)}
+          className="p-4 rounded-2xl bg-gradient-to-br from-sky-900/10 via-blue-500/5 to-sky-900/10 border border-sky-200/80 hover:border-sky-300 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex items-start gap-3.5"
+        >
+          <div className="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+            <Send className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-0.5">
+              <h4 className="text-xs font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
+                Telegram Bot Alerts
+              </h4>
+              <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-snug">
+              AI 90%+ moslik topganda Telegramingizga zudlik bilan bildirishnoma
+            </p>
+          </div>
+        </div>
+
+        {/* Payme / Click Escrow Card */}
+        <div
+          onClick={() => setIsRewardOpen(true)}
+          className="p-4 rounded-2xl bg-gradient-to-br from-teal-900/10 via-emerald-500/5 to-teal-900/10 border border-teal-200/80 hover:border-teal-300 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex items-start gap-3.5"
+        >
+          <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+            <CreditCard className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-0.5">
+              <h4 className="text-xs font-bold text-slate-900 group-hover:text-teal-700 transition-colors">
+                Kafolatlangan Suyunchi
+              </h4>
+              <span className="text-[10px] font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">
+                Escrow
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-snug">
+              Topuvchiga Payme yoki Click orqali xavfsiz mukofot o'tkazish
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <TelegramModal isOpen={isTelegramOpen} onClose={() => setIsTelegramOpen(false)} />
+      <QrTagModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
+      <RewardPaymentModal isOpen={isRewardOpen} onClose={() => setIsRewardOpen(false)} />
     </div>
   );
 }

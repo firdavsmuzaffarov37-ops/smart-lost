@@ -4,6 +4,9 @@ import { useApp } from '../context/AppContext';
 import { findMatchesForItem } from '../services/aiMatchingService';
 import LostFoundMap from '../components/map/LostFoundMap';
 import MatchComparisonModal from '../components/matching/MatchComparisonModal';
+import QrTagModal from '../components/common/QrTagModal';
+import RewardPaymentModal from '../components/common/RewardPaymentModal';
+import { telegramService } from '../services/telegramService';
 import {
   MapPin,
   Calendar,
@@ -21,6 +24,9 @@ import {
   Eye,
   Trash2,
   Edit3,
+  QrCode,
+  CreditCard,
+  Send,
 } from 'lucide-react';
 
 export default function ItemDetailsPage() {
@@ -41,6 +47,8 @@ export default function ItemDetailsPage() {
   const [showSecretAnswerPrompt, setShowSecretAnswerPrompt] = useState(false);
   const [userClaimAnswer, setUserClaimAnswer] = useState('');
   const [isClaimVerified, setIsClaimVerified] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isRewardPaymentOpen, setIsRewardPaymentOpen] = useState(false);
 
   const item = reports.find((r) => r.id === id);
 
@@ -139,6 +147,29 @@ export default function ItemDetailsPage() {
         </button>
 
         <div className="flex items-center gap-2">
+          {/* Smart QR Sticker Generator Button */}
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="p-2 rounded-xl border border-violet-200 bg-violet-50/70 hover:bg-violet-100 text-violet-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Smart QR Stiker yaratish"
+          >
+            <QrCode className="w-4 h-4 text-violet-600" />
+            <span className="hidden sm:inline">QR Stiker</span>
+          </button>
+
+          {/* Telegram Share Button */}
+          <button
+            onClick={() => {
+              const text = encodeURIComponent(`🔍 FindIt AI: ${item.title}\n📍 Joylashuv: ${item.locationAddress}`);
+              window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${text}`, '_blank');
+            }}
+            className="p-2 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-sky-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Telegramda ulashish"
+          >
+            <Send className="w-4 h-4 text-sky-600" />
+            <span className="hidden sm:inline">Telegram</span>
+          </button>
+
           <button
             onClick={handleShare}
             className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -279,6 +310,14 @@ export default function ItemDetailsPage() {
                 {isOwner && (
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
+                      onClick={() => setIsRewardPaymentOpen(true)}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 cursor-pointer transition-colors flex items-center gap-1.5 shadow-2xs"
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      <span>Suyunchi to'lash</span>
+                    </button>
+                    <button
                       onClick={handleToggleReunited}
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors ${
                         isReunited
@@ -301,13 +340,21 @@ export default function ItemDetailsPage() {
 
               {/* Action Buttons if not owner */}
               {!isOwner && (
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-2.5">
                   <button
                     onClick={handleStartChat}
                     className="flex-1 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4" />
                     <span>{isLost ? t('common.contactOwner') : t('common.contactFinder')}</span>
+                  </button>
+
+                  <button
+                    onClick={() => setIsRewardPaymentOpen(true)}
+                    className="py-3 px-4 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs sm:text-sm font-bold shadow-sm shadow-teal-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>Suyunchi to'lash (Payme / Click)</span>
                   </button>
 
                   {item.secretQuestion && (
@@ -475,6 +522,20 @@ export default function ItemDetailsPage() {
           onClose={() => setSelectedMatch(null)}
         />
       )}
+
+      {/* Smart QR Sticker Generator Modal */}
+      <QrTagModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        item={item}
+      />
+
+      {/* Payme / Click Escrow Reward Payment Modal */}
+      <RewardPaymentModal
+        isOpen={isRewardPaymentOpen}
+        onClose={() => setIsRewardPaymentOpen(false)}
+        item={item}
+      />
     </div>
   );
 }

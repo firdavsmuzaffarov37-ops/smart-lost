@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import TelegramModal from './TelegramModal';
+import QrTagModal from './QrTagModal';
 import {
   LayoutDashboard,
   Search,
@@ -18,18 +20,58 @@ import {
   UserPlus,
   X,
   Compass,
+  QrCode,
+  Send,
+  Smartphone,
+  Download,
 } from 'lucide-react';
 
 export default function Sidebar() {
   const {
     t,
+    language,
     reports,
     unreadMessagesCount,
     currentUser,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
+    addToast,
   } = useApp();
   const navigate = useNavigate();
+
+  const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        addToast(
+          language === 'uz' ? 'Ilova muvaffaqiyatli o\'rnatildi!' : 'Приложение успешно установлено!',
+          'success'
+        );
+      }
+      setDeferredPrompt(null);
+    } else {
+      addToast(
+        language === 'uz'
+          ? 'Brauzer menyusidan "Bosh ekranga qo\'shish" yoki "Install" tugmasini bosing'
+          : 'Нажмите в меню браузера "Установить приложение" или "На главный экран"',
+        'info'
+      );
+    }
+  };
 
   const lostCount = reports.filter((r) => r.type === 'lost' && r.status === 'open').length;
   const foundCount = reports.filter((r) => r.type === 'found' && r.status === 'open').length;
@@ -239,6 +281,65 @@ export default function Sidebar() {
               );
             })}
           </div>
+
+          {/* Smart Tools Quick Access (QR, Telegram, PWA) */}
+          <div className="pt-3 px-1 space-y-1.5 border-t border-slate-200/60">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2">
+              {language === 'uz' ? 'Smart Vositalar' : language === 'ru' ? 'Смарт инструменты' : 'Smart Tools'}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsQrModalOpen(true);
+                handleNavClick();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-violet-700 hover:bg-violet-50 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5">
+                <QrCode className="w-4 h-4 text-violet-600 group-hover:scale-110 transition-transform" />
+                <span>Smart QR Stiker</span>
+              </div>
+              <span className="text-[9px] font-bold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-md">
+                Stiker
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsTelegramModalOpen(true);
+                handleNavClick();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-sky-50 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5">
+                <Send className="w-4 h-4 text-sky-500 group-hover:scale-110 transition-transform" />
+                <span>Telegram Bot</span>
+              </div>
+              <span className="text-[9px] font-bold bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Bot
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                handleInstallApp();
+                handleNavClick();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5">
+                <Smartphone className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span>{language === 'uz' ? 'Ilovani o\'rnatish' : 'Установить App'}</span>
+              </div>
+              <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-md">
+                PWA
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Quick Report Promo Box in Sidebar */}
@@ -326,6 +427,18 @@ export default function Sidebar() {
           )}
         </div>
       </aside>
+
+      {/* Telegram Bot Modal */}
+      <TelegramModal
+        isOpen={isTelegramModalOpen}
+        onClose={() => setIsTelegramModalOpen(false)}
+      />
+
+      {/* Smart QR Tag Generator Modal */}
+      <QrTagModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+      />
     </>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { findMatchesForItem } from '../services/aiMatchingService';
+import QrTagModal from '../components/common/QrTagModal';
 import {
   FileText,
   Search,
@@ -17,6 +18,7 @@ import {
   Plus,
   X,
   Save,
+  QrCode,
 } from 'lucide-react';
 
 export default function MyReportsPage() {
@@ -32,6 +34,7 @@ export default function MyReportsPage() {
 
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'lost', 'found'
   const [editingItem, setEditingItem] = useState(null);
+  const [qrModalItem, setQrModalItem] = useState(null);
 
   // Filter reports belonging to current user
   const myReports = reports.filter((r) => r.userId === currentUser?.id);
@@ -310,6 +313,14 @@ export default function MyReportsPage() {
                     </button>
 
                     <button
+                      onClick={() => setQrModalItem(item)}
+                      className="p-2 rounded-xl text-violet-600 hover:text-violet-700 hover:bg-violet-50 transition-colors cursor-pointer"
+                      title="Smart QR Stiker"
+                    >
+                      <QrCode className="w-4 h-4" />
+                    </button>
+
+                    <button
                       onClick={() => setEditingItem(item)}
                       className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                       title="Edit Report"
@@ -429,6 +440,13 @@ export default function MyReportsPage() {
           </div>
         </div>
       )}
+
+      {/* Smart QR Tag Modal */}
+      <QrTagModal
+        isOpen={Boolean(qrModalItem)}
+        onClose={() => setQrModalItem(null)}
+        item={qrModalItem}
+      />
     </div>
   );
 }

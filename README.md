@@ -80,6 +80,24 @@ Heuristic comparison engine analyzing:
 - Notification preference toggles.
 - **Reset Demo Data**: Restore default realistic Uzbekistan listings at any time.
 
+### 9. Telegram Bot Alerts (`@FindItAi_Robot`)
+- Live simulated or direct Telegram Bot API integration.
+- Instant notifications when AI finds a >90% match or when a finder reaches out.
+- Interactive Telegram chat preview bubble with sound effects and custom settings.
+
+### 10. Smart QR Sticker Generator
+- Generates downloadable and printable QR stickers for personal belongings (wallets, keys, bags, laptops).
+- If scanned, takes the finder directly to the owner's verification page.
+- Direct PNG download and Print Notice capabilities.
+
+### 11. Escrow Reward Payout (Payme / Click)
+- Secure, 0% commission reward payout flow for returning lost belongings.
+- Supports both **Payme** (teal) and **Click** (blue) with 3D-Secure SMS OTP simulation and confetti celebration.
+
+### 12. Progressive Web App (PWA)
+- Installable on mobile devices (Android/iOS) and desktop browsers via `manifest.json`.
+- Offline shell caching with dedicated Service Worker.
+
 ---
 
 ## 📦 Getting Started
