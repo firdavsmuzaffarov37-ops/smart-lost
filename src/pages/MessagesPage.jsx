@@ -117,6 +117,7 @@ export default function MessagesPage() {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const [mobileView, setMobileView] = useState('list'); // 'list' | 'chat'
   const messagesEndRef = useRef(null);
 
   const activeConv =
@@ -228,7 +229,7 @@ export default function MessagesPage() {
       {/* Main Messaging Container */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden h-[680px] grid grid-cols-1 md:grid-cols-12">
         {/* Left: Conversations List */}
-        <div className="md:col-span-4 border-r border-slate-200/80 flex flex-col h-full bg-slate-50/50">
+        <div className={`md:col-span-4 border-r border-slate-200/80 flex flex-col h-full bg-slate-50/50 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-4 border-b border-slate-200/70 bg-white">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-blue-600" />
@@ -250,7 +251,10 @@ export default function MessagesPage() {
                 return (
                   <div
                     key={conv.id}
-                    onClick={() => setActiveConversationId(conv.id)}
+                    onClick={() => {
+                      setActiveConversationId(conv.id);
+                      setMobileView('chat');
+                    }}
                     className={`p-3.5 transition-colors cursor-pointer flex gap-3 ${
                       isActive ? 'bg-white shadow-2xs border-l-4 border-l-blue-600' : 'hover:bg-slate-100/70'
                     }`}
@@ -289,24 +293,34 @@ export default function MessagesPage() {
 
         {/* Right: Active Chat Area */}
         {activeConv ? (
-          <div className="md:col-span-8 flex flex-col h-full bg-white">
+          <div className={`md:col-span-8 flex flex-col h-full bg-white ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
             {/* Chat Header */}
-            <div className="p-4 border-b border-slate-200/70 flex items-center justify-between gap-3 bg-white">
-              <div className="flex items-center gap-3 min-w-0">
+            <div className="p-3 sm:p-4 border-b border-slate-200/70 flex items-center justify-between gap-2.5 bg-white">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                {/* Mobile Back Button */}
+                <button
+                  type="button"
+                  onClick={() => setMobileView('list')}
+                  className="md:hidden p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"
+                  title="Suhbatlar ro'yxatiga qaytish"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
                 <img
                   src={activeConv.otherUser.avatar}
                   alt={activeConv.otherUser.name}
-                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
                 />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-sm text-slate-900 truncate">
+                    <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
                       {activeConv.otherUser.name}
                     </span>
                     <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Online" />
                   </div>
-                  <span className="text-[11px] text-slate-400 truncate block">
+                  <span className="text-[10px] sm:text-[11px] text-slate-400 truncate block">
                     {activeConv.otherUser.role || 'Community Member'} • Online
                   </span>
                 </div>

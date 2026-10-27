@@ -22,7 +22,12 @@ export default function MobileBottomNav() {
       icon: PlusCircle,
       isPrimary: true,
     },
-    { to: '/found', label: t('common.found'), icon: CheckSquare },
+    {
+      to: '/messages',
+      label: t('nav.messages'),
+      icon: MessageSquare,
+      badge: unreadMessagesCount > 0 ? unreadMessagesCount : null,
+    },
     { to: '/map', label: t('nav.interactiveMap'), icon: MapPin },
   ];
 
@@ -61,7 +66,14 @@ export default function MobileBottomNav() {
           >
             {({ isActive }) => (
               <>
-                <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
+                <div className="relative">
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
+                  {link.badge && (
+                    <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                      {link.badge}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[10px] mt-0.5">{link.label}</span>
               </>
             )}

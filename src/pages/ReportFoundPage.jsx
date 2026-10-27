@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Sparkles,
   Lock,
+  Smartphone,
 } from 'lucide-react';
 
 export default function ReportFoundPage() {
@@ -258,38 +259,55 @@ export default function ReportFoundPage() {
 
             {/* Action Buttons & Presets */}
             <div className="md:col-span-7 space-y-3.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {/* 1. Take Snapshot with Web/Mobile Camera */}
                 <button
                   type="button"
                   onClick={() => setIsCameraModalOpen(true)}
-                  className="p-3.5 rounded-2xl border-2 border-emerald-500/80 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-800 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
+                  className="p-3 rounded-2xl border-2 border-emerald-500/80 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-800 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
                 >
                   <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Camera className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-bold text-center">
-                    {t('camera.takePhoto')}
+                    {language === 'uz' ? 'Jonli Kamera' : t('camera.takePhoto')}
                   </span>
                   <span className="text-[10px] text-emerald-600/80 text-center">
-                    Webcam / Live Camera
+                    Webcam / Live
                   </span>
                 </button>
 
-                {/* 2. Choose File from Device */}
+                {/* 2. Direct Mobile Camera App */}
+                <button
+                  type="button"
+                  onClick={() => mobileCameraInputRef.current?.click()}
+                  className="p-3 rounded-2xl border-2 border-teal-500/80 bg-teal-50/50 hover:bg-teal-50 text-teal-800 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Smartphone className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-bold text-center">
+                    {language === 'uz' ? 'Telefon Kamerasi' : 'Camera App'}
+                  </span>
+                  <span className="text-[10px] text-teal-600/80 text-center">
+                    {language === 'uz' ? 'Ilovadan olish' : 'Native Capture'}
+                  </span>
+                </button>
+
+                {/* 3. Choose File from Device */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-3.5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/60 hover:bg-slate-50 text-slate-700 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
+                  className="p-3 rounded-2xl border-2 border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/60 hover:bg-slate-50 text-slate-700 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
                 >
                   <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Upload className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-bold text-center">
-                    {t('camera.uploadFromDevice')}
+                    {language === 'uz' ? 'Fayldan Tanlash' : t('camera.uploadFromDevice')}
                   </span>
                   <span className="text-[10px] text-slate-400 text-center">
-                    PNG, JPG, WEBP &lt; 5MB
+                    Galereya / Disk
                   </span>
                 </button>
 
