@@ -540,80 +540,19 @@ export default function LoginPage() {
               {/* Standard Login Form */}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-slate-300">
-                      {t('auth.email')}
-                    </label>
-                    <span className="text-[11px] text-blue-400 font-medium flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      {language === 'uz' ? 'Akkaunt fotosi' : language === 'ru' ? 'Фото аккаунта' : 'Account photo'}
-                    </span>
-                  </div>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-2.5 flex items-center pointer-events-none z-10">
-                      <img
-                        src={selectedAvatar || (email.trim() ? (storageService.findAccountByEmail(email.trim().toLowerCase())?.avatar || getAvatarForEmail(email.trim())) : AVATAR_PRESETS[0])}
-                        alt="Avatar preview"
-                        className="w-6 h-6 rounded-full object-cover ring-2 ring-blue-500/60 shadow-sm"
-                      />
-                    </div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    {t('auth.email')}
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                      }}
-                      placeholder="azizbek.r@example.uz yoki istalgan email"
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="azizbek.r@example.uz"
                       required
-                      className="w-full pl-11 pr-4 py-2.5 text-xs sm:text-sm bg-slate-950/70 border border-slate-700/80 rounded-xl focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder:text-slate-600 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-950/70 border border-slate-700/80 rounded-xl focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder:text-slate-600 transition-all"
                     />
-                  </div>
-
-                  {/* Real Portrait Avatar Preview & Chooser Strip */}
-                  <div className="mt-2.5 p-2 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                    <div className="flex items-center justify-between mb-1.5 px-0.5">
-                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                        {language === 'uz' ? 'Ushbu akkaunt surati:' : language === 'ru' ? 'Фотография этого профиля:' : 'Profile photo:'}
-                      </span>
-                      {selectedAvatar && (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedAvatar(null)}
-                          className="text-[10px] text-blue-400 hover:text-blue-300 underline cursor-pointer"
-                        >
-                          {language === 'uz' ? 'Avtomatik tiklash' : 'Auto reset'}
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                      {AVATAR_PRESETS.slice(0, 10).map((presetUrl, idx) => {
-                        const activeUrl = selectedAvatar || (email.trim() ? (storageService.findAccountByEmail(email.trim().toLowerCase())?.avatar || getAvatarForEmail(email.trim())) : AVATAR_PRESETS[0]);
-                        const isChosen = activeUrl === presetUrl;
-                        return (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setSelectedAvatar(presetUrl)}
-                            className={`relative shrink-0 rounded-full transition-transform hover:scale-110 cursor-pointer ${
-                              isChosen
-                                ? 'ring-2 ring-blue-500 scale-105 shadow-md shadow-blue-500/40'
-                                : 'opacity-60 hover:opacity-100 ring-1 ring-slate-700'
-                            }`}
-                          >
-                            <img
-                              src={presetUrl}
-                              alt={`Face ${idx}`}
-                              className="w-7 h-7 rounded-full object-cover"
-                            />
-                            {isChosen && (
-                              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center text-[7px] text-white font-bold ring-1 ring-slate-900">
-                                ✓
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
                   </div>
                 </div>
 
