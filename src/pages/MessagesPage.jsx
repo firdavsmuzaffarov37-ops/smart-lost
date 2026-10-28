@@ -20,81 +20,7 @@ import {
   Smile,
 } from 'lucide-react';
 
-function playMessageChime() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.12); // A5
-    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.25);
-  } catch (e) {
-    // AudioContext not supported or allowed
-  }
-}
 
-function getContextualReply(userMessage, contactName, itemTitle, language) {
-  const text = (userMessage || '').toLowerCase();
-
-  if (language === 'uz') {
-    if (text.includes('salom') || text.includes('assalom') || text.includes('qale') || text.includes('privet')) {
-      return `Assalomu alaykum! Ha, "${itemTitle || 'buyum'}" menda xavfsiz turibdi. Qachon va qayerda uchrashsak sizga ma'qul bo'ladi?`;
-    }
-    if (text.includes('qayerda') || text.includes('qatta') || text.includes('joy') || text.includes('adres') || text.includes('manzil')) {
-      return `Men hozir Toshkent markazidaman (Amir Temur metro bekati yonidagi xizmat ko'rsatish shoxobchasi). Xavfsiz joyda bemalol uchrashib topshirishim mumkin.`;
-    }
-    if (text.includes('qachon') || text.includes('vaqt') || text.includes('soat')) {
-      return `Bugun soat 17:30 dan 19:30 gacha bemalol vaqtim bor. Siz qaysi vaqtda kela olasiz?`;
-    }
-    if (text.includes('rahmat') || text.includes('tashakkur') || text.includes('raxmat') || text.includes('spasibo')) {
-      return `Arzimaydi, asosiysi buyumingiz eson-omon topilgani! Har doim yordamga tayyorman, omon bo'ling!`;
-    }
-    if (text.includes('telefon') || text.includes('nomer') || text.includes('raqam') || text.includes('sms')) {
-      return `Mening telefon raqamim: +998 90 123 45 67. Xohlasangiz qo'ng'iroq qiling yoki SMS yozing.`;
-    }
-    if (text.includes('ichida') || text.includes('hujjat') || text.includes('pasport') || text.includes('karta') || text.includes('pul')) {
-      return `Ha, barcha ichki buyumlar, kartalar va hujjatlar joy-joyida turibdi, hech narsa kamaymagan.`;
-    }
-    if (text.includes('metro') || text.includes('bekat') || text.includes('xavfsiz')) {
-      return `Ajoyib fikr! Metro xizmat ko'rsatish punkti yoki savdo markazi axborot bo'limida uchrashish eng xavfsizi.`;
-    }
-    return `Xabaringizni oldim! "${itemTitle || 'Buyum'}" sizga tegishli ekanligidan xursandman. Uchrashuv joyini kelishib olsak, darhol topshiraman.`;
-  } else if (language === 'ru') {
-    if (text.includes('привет') || text.includes('здравствуй') || text.includes('салом')) {
-      return `Здравствуйте! Да, "${itemTitle}" в целости и сохранности. Где и когда вам удобно встретиться?`;
-    }
-    if (text.includes('где') || text.includes('адрес') || text.includes('место')) {
-      return `Я нахожусь в Ташкенте (около метро Амир Темур). Можем безопасно встретиться на стойке информации.`;
-    }
-    if (text.includes('когда') || text.includes('время')) {
-      return `Сегодня с 17:00 до 19:30 я свободен. Во сколько вам удобнее подъехать?`;
-    }
-    if (text.includes('спасибо') || text.includes('благодар')) {
-      return `Пожалуйста! Главное, что вещь нашлась. Рад был помочь!`;
-    }
-    return `Ваше сообщение получил! Готов передать "${itemTitle}" в любое согласованное безопасное время.`;
-  } else {
-    if (text.includes('hi') || text.includes('hello') || text.includes('salom')) {
-      return `Hello! Yes, the "${itemTitle}" is safe and secure with me. When and where would be convenient for you to meet?`;
-    }
-    if (text.includes('where') || text.includes('location')) {
-      return `I am currently in central Tashkent (near the Amir Temur metro helpdesk). We can safely meet there.`;
-    }
-    if (text.includes('when') || text.includes('time')) {
-      return `I will be available today between 17:00 and 19:30. What time works best for you?`;
-    }
-    if (text.includes('thank')) {
-      return `You are very welcome! I'm glad it got safely returned to you.`;
-    }
-    return `Received your message! Looking forward to safely returning "${itemTitle}" to you.`;
-  }
-}
 
 export default function MessagesPage() {
   const navigate = useNavigate();
@@ -115,7 +41,6 @@ export default function MessagesPage() {
     userConversations[0]?.id || ''
   );
   const [inputText, setInputText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState('list'); // 'list' | 'chat'
   const messagesEndRef = useRef(null);
@@ -125,29 +50,15 @@ export default function MessagesPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConv?.messages, isTyping]);
+  }, [activeConv?.messages]);
 
   const handleSend = (textToSend) => {
     const text = typeof textToSend === 'string' ? textToSend.trim() : inputText.trim();
     if (!text || !activeConv) return;
 
-    // 1. Send current user's message
+    // Send current user's message
     sendMessage(activeConv.id, text, currentUser?.id);
     setInputText('');
-
-    // 2. Trigger smart contextual reply from the other person
-    setIsTyping(true);
-    setTimeout(() => {
-      const reply = getContextualReply(
-        text,
-        activeConv.otherUser?.name,
-        activeConv.itemTitle,
-        language
-      );
-      sendMessage(activeConv.id, reply, activeConv.otherUser?.id);
-      setIsTyping(false);
-      playMessageChime();
-    }, 1400);
   };
 
   const handleSendLocation = () => {
@@ -396,21 +307,6 @@ export default function MessagesPage() {
                 );
               })}
 
-              {/* Typing indicator */}
-              {isTyping && (
-                <div className="flex items-start">
-                  <div className="flex items-center gap-2 p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
-                    <div className="flex gap-1 items-center">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.3s]"></span>
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.15s]"></span>
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"></span>
-                    </div>
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      {activeConv.otherUser.name.split(' ')[0]} yozmoqda...
-                    </span>
-                  </div>
-                </div>
-              )}
 
               <div ref={messagesEndRef} />
             </div>
