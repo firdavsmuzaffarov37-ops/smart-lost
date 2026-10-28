@@ -15,11 +15,10 @@ import {
   MapPin,
   ExternalLink,
   ShieldCheck,
-  Server,
   Camera,
   Upload,
 } from 'lucide-react';
-import { citiesInUzbekistan, AVATAR_PRESETS } from '../data/initialData';
+import { citiesInUzbekistan } from '../data/initialData';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ export default function SettingsPage() {
     setLanguage,
     resetAllData,
     addToast,
-    supabaseStatus,
     t,
   } = useApp();
 
@@ -52,8 +50,6 @@ export default function SettingsPage() {
 
   const [matchAlerts, setMatchAlerts] = useState(true);
   const [messageAlerts, setMessageAlerts] = useState(true);
-
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://zigmkgwbrhwcyuzrmxce.supabase.co';
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
@@ -244,28 +240,6 @@ export default function SettingsPage() {
             </span>
           </div>
 
-          {/* Quick preset avatars */}
-          <div className="flex items-center gap-2 pt-1">
-            <span className="text-[11px] font-medium text-slate-400">
-              {language === 'uz' ? 'Tayyor rasmlar:' : language === 'ru' ? 'Выбрать аватар:' : 'Presets:'}
-            </span>
-            <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
-              {AVATAR_PRESETS.map((preset, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setAvatar(preset)}
-                  className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
-                    avatar === preset
-                      ? 'border-blue-600 scale-110 ring-2 ring-blue-500/30'
-                      : 'border-slate-200 opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  <img src={preset} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -384,57 +358,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Supabase Cloud Database Panel */}
-      <div className="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${supabaseStatus.connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-            {t('settings.databaseTitle')}
-          </h2>
-          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-            supabaseStatus.connected
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-amber-50 text-amber-700 border-amber-200'
-          }`}>
-            {supabaseStatus.connected ? t('settings.connected') : t('settings.notConnected')}
-          </span>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-xs">
-          <div className="flex items-center justify-between flex-wrap gap-1">
-            <span className="font-bold text-slate-700">{t('settings.projectEndpoint')}</span>
-            <span className="font-mono text-slate-700 bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-[11px] truncate max-w-full">
-              {supabaseUrl}
-            </span>
-          </div>
-          <div className="flex items-center justify-between flex-wrap gap-1">
-            <span className="font-bold text-slate-700">{t('settings.apiKeyStatus')}</span>
-            <span className="text-emerald-700 font-semibold flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> {t('settings.keyActive')}
-            </span>
-          </div>
-          <div className="flex items-center justify-between flex-wrap gap-1">
-            <span className="font-bold text-slate-700">{t('settings.syncArchitecture')}</span>
-            <span className="text-slate-600">{t('settings.syncArchDesc')}</span>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/60 text-xs text-blue-900 leading-relaxed flex items-start gap-3">
-          <Server className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-bold text-blue-950">
-              {language === 'uz'
-                ? "Bulutli ma'lumotlar bazasi faolligi"
-                : language === 'ru'
-                ? 'Статус облачной базы данных'
-                : 'Cloud Database Status'}
-            </p>
-            <p className="text-blue-800">
-              {t('settings.schemaNotice')}
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Demo Data Management */}
       <div className="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
