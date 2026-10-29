@@ -19,6 +19,7 @@ export default function NotificationDropdown() {
     markNotificationRead,
     markAllNotificationsRead,
     t,
+    language,
   } = useApp();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -60,8 +61,8 @@ export default function NotificationDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors focus:outline-hidden"
-        title="Notifications"
+        className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors focus:outline-hidden cursor-pointer"
+        title={t('header.notifications')}
       >
         <Bell className="w-5 h-5" />
         {unreadNotificationsCount > 0 && (
@@ -80,7 +81,7 @@ export default function NotificationDropdown() {
               </span>
               {unreadNotificationsCount > 0 && (
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                  {unreadNotificationsCount} new
+                  {unreadNotificationsCount} {language === 'uz' ? 'yangi' : language === 'ru' ? 'новых' : 'new'}
                 </span>
               )}
             </div>

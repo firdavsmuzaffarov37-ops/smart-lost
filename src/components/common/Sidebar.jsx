@@ -101,7 +101,7 @@ export default function Sidebar() {
       to: '/report/lost',
       label: t('nav.reportItem'),
       icon: PlusCircle,
-      badge: 'New',
+      badge: language === 'uz' ? 'Yangi' : language === 'ru' ? 'Новое' : 'New',
       badgeColor: 'bg-blue-600 text-white text-[10px]',
     },
     {
@@ -398,7 +398,7 @@ export default function Sidebar() {
                   <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                 </div>
                 <p className="text-[11px] text-slate-500 truncate">
-                  {currentUser?.role || t('sidebar.verifiedCitizen')}
+                  {currentUser?.role === 'Admin' ? 'Admin' : t('sidebar.verifiedCitizen')}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />

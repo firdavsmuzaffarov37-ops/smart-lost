@@ -18,7 +18,7 @@ import {
 
 export default function MapPage() {
   const navigate = useNavigate();
-  const { reports, t } = useApp();
+  const { reports, t, language } = useApp();
 
   const [filterType, setFilterType] = useState('all'); // 'all', 'lost', 'found'
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -65,10 +65,14 @@ export default function MapPage() {
           <div>
             <h1 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
               <MapPin className="w-5 h-5 text-blue-600" />
-              Interactive Lost & Found Map
+              {t('nav.interactiveMap')}
             </h1>
             <p className="text-xs text-slate-500">
-              Sample coordinates across Uzbekistan. Filter by status, category, or city.
+              {language === 'uz'
+                ? "O'zbekiston bo'ylab yo'qolgan va topilgan buyumlar xaritasi. Shahar va kategoriya bo'yicha saralang."
+                : language === 'ru'
+                ? "Интерактивная карта пропавших и найденных вещей по Узбекистану."
+                : "Sample coordinates across Uzbekistan. Filter by status, category, or city."}
             </p>
           </div>
 
@@ -81,7 +85,7 @@ export default function MapPage() {
                   filterType === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
                 }`}
               >
-                All ({reports.length})
+                {t('dashboard.filterAll')} ({reports.length})
               </button>
               <button
                 onClick={() => setFilterType('lost')}
@@ -89,7 +93,7 @@ export default function MapPage() {
                   filterType === 'lost' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-600'
                 }`}
               >
-                Lost
+                {t('common.lost')}
               </button>
               <button
                 onClick={() => setFilterType('found')}
@@ -97,7 +101,7 @@ export default function MapPage() {
                   filterType === 'found' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600'
                 }`}
               >
-                Found
+                {t('common.found')}
               </button>
             </div>
 
@@ -107,7 +111,11 @@ export default function MapPage() {
               title={isSplitView ? 'Switch to Full Map' : 'Switch to Split List View'}
             >
               {isSplitView ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
-              <span className="hidden sm:inline">{isSplitView ? 'Full Map' : 'Split View'}</span>
+              <span className="hidden sm:inline">
+                {isSplitView
+                  ? (language === 'uz' ? "To'liq xarita" : language === 'ru' ? "Полная карта" : 'Full Map')
+                  : (language === 'uz' ? "Ro'yxatli ko'rinish" : language === 'ru' ? "Списком" : 'Split View')}
+              </span>
             </button>
           </div>
         </div>
@@ -117,7 +125,7 @@ export default function MapPage() {
           {/* City selector */}
           <div>
             <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-              Select City
+              {language === 'uz' ? 'Shaharni tanlang' : language === 'ru' ? 'Выберите город' : 'Select City'}
             </label>
             <select
               value={selectedCityName}
@@ -127,7 +135,7 @@ export default function MapPage() {
               <option value="all">{t('items.allCitiesOption')}</option>
               {citiesInUzbekistan.map((c) => (
                 <option key={c.name} value={c.name}>
-                  {c.name} ({c.region})
+                  {language === 'uz' ? (c.nameUz || c.name) : language === 'ru' ? (c.nameRu || c.name) : c.name} ({language === 'uz' ? (c.regionUz || c.region) : language === 'ru' ? (c.regionRu || c.region) : c.region})
                 </option>
               ))}
             </select>
@@ -185,20 +193,27 @@ export default function MapPage() {
           <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 flex flex-col h-[620px]">
             <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
               <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Reports on Map ({filteredItems.length})
+                {language === 'uz' ? 'Xaritadagi e\'lonlar' : language === 'ru' ? 'Объявления на карте' : 'Reports on Map'} ({filteredItems.length})
               </span>
-              <span className="text-[11px] text-slate-400">Click to focus pin</span>
+              <span className="text-[11px] text-slate-400">
+                {language === 'uz' ? "Nuqtani ko'rish uchun bosing" : language === 'ru' ? "Нажмите для фокуса" : "Click to focus pin"}
+              </span>
             </div>
 
             <div className="flex-1 overflow-y-auto divide-y divide-slate-100 pr-1 space-y-2 pt-2">
               {filteredItems.length === 0 ? (
                 <div className="p-8 text-center text-slate-400 text-xs">
-                  No reports located in this city or category.
+                  {language === 'uz'
+                    ? "Ushbu shahar yoki kategoriya bo'yicha e'lonlar yo'q."
+                    : language === 'ru'
+                    ? "В этом городе или категории нет объявлений."
+                    : "No reports located in this city or category."}
                 </div>
               ) : (
                 filteredItems.map((item) => {
                   const isLost = item.type === 'lost';
                   const isCurrent = selectedItem && selectedItem.id === item.id;
+                  const displayTitle = language === 'uz' && item.titleUz ? item.titleUz : language === 'ru' && item.titleRu ? item.titleRu : item.title;
 
                   return (
                     <div
@@ -212,7 +227,7 @@ export default function MapPage() {
                     >
                       <img
                         src={item.image}
-                        alt={item.title}
+                        alt={displayTitle}
                         className="w-14 h-14 rounded-lg object-cover shrink-0"
                       />
                       <div className="flex-1 min-w-0">
@@ -222,7 +237,7 @@ export default function MapPage() {
                               isLost ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
                             }`}
                           >
-                            {item.type}
+                            {isLost ? t('common.lost') : t('common.found')}
                           </span>
                           {item.reward && (
                             <span className="text-[10px] font-bold text-amber-600">
@@ -231,7 +246,7 @@ export default function MapPage() {
                           )}
                         </div>
                         <h4 className="text-xs font-bold text-slate-900 truncate">
-                          {item.title}
+                          {displayTitle}
                         </h4>
                         <p className="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1">
                           <MapPin className="w-3 h-3 text-slate-400 shrink-0" />

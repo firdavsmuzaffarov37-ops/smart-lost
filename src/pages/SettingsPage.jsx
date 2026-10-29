@@ -213,7 +213,7 @@ export default function SettingsPage() {
                   {t('settings.profileTitle')}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {currentUser?.role || 'Verified Citizen'} • {currentUser?.city || 'Tashkent'}
+                  {(currentUser?.role === 'Admin' ? 'Admin' : t('sidebar.verifiedCitizen'))} • {(language === 'uz' ? (currentUser?.city === 'Tashkent' ? 'Toshkent' : currentUser?.city) : currentUser?.city)}
                 </p>
                 <label className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 cursor-pointer inline-flex items-center gap-1 mt-1">
                   <Upload className="w-3 h-3" />
@@ -236,7 +236,7 @@ export default function SettingsPage() {
             </div>
             <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/60 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
-              {currentUser?.trustScore || 98}% Trust Score
+              {currentUser?.trustScore || 98}% {language === 'uz' ? 'Ishonch darajasi' : language === 'ru' ? 'Рейтинг доверия' : 'Trust Score'}
             </span>
           </div>
 
@@ -303,7 +303,7 @@ export default function SettingsPage() {
               >
                 {citiesInUzbekistan.map((c) => (
                   <option key={c.name} value={c.name}>
-                    {c.name} ({c.region})
+                    {language === 'uz' ? (c.nameUz || c.name) : language === 'ru' ? (c.nameRu || c.name) : c.name} ({language === 'uz' ? (c.regionUz || c.region) : language === 'ru' ? (c.regionRu || c.region) : c.region})
                   </option>
                 ))}
               </select>

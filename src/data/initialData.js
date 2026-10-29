@@ -171,14 +171,14 @@ export const categories = [
 ];
 
 export const citiesInUzbekistan = [
-  { name: "Tashkent", lat: 41.311081, lng: 69.279737, region: "Tashkent City" },
-  { name: "Samarkand", lat: 39.6548, lng: 66.9758, region: "Samarkand Region" },
-  { name: "Bukhara", lat: 39.7731, lng: 64.4215, region: "Bukhara Region" },
-  { name: "Fergana", lat: 40.3842, lng: 71.7843, region: "Fergana Valley" },
-  { name: "Namangan", lat: 40.9983, lng: 71.6726, region: "Namangan Region" },
-  { name: "Andijan", lat: 40.7821, lng: 72.3442, region: "Andijan Region" },
-  { name: "Nukus", lat: 42.4602, lng: 59.6166, region: "Karakalpakstan" },
-  { name: "Khiva", lat: 41.3783, lng: 60.3639, region: "Khorezm Region" },
+  { name: "Tashkent", nameUz: "Toshkent", nameRu: "Ташкент", lat: 41.311081, lng: 69.279737, region: "Tashkent City", regionUz: "Toshkent shahri", regionRu: "г. Ташкент" },
+  { name: "Samarkand", nameUz: "Samarqand", nameRu: "Самарканд", lat: 39.6548, lng: 66.9758, region: "Samarkand Region", regionUz: "Samarqand viloyati", regionRu: "Самаркандская область" },
+  { name: "Bukhara", nameUz: "Buxoro", nameRu: "Бухара", lat: 39.7731, lng: 64.4215, region: "Bukhara Region", regionUz: "Buxoro viloyati", regionRu: "Бухарская область" },
+  { name: "Fergana", nameUz: "Farg'ona", nameRu: "Фергана", lat: 40.3842, lng: 71.7843, region: "Fergana Valley", regionUz: "Farg'ona viloyati", regionRu: "Ферганская область" },
+  { name: "Namangan", nameUz: "Namangan", nameRu: "Наманган", lat: 40.9983, lng: 71.6726, region: "Namangan Region", regionUz: "Namangan viloyati", regionRu: "Наманганская область" },
+  { name: "Andijan", nameUz: "Andijon", nameRu: "Андижан", lat: 40.7821, lng: 72.3442, region: "Andijan Region", regionUz: "Andijon viloyati", regionRu: "Андижанская область" },
+  { name: "Nukus", nameUz: "Nukus", nameRu: "Нукус", lat: 42.4602, lng: 59.6166, region: "Karakalpakstan", regionUz: "Qoraqalpog'iston", regionRu: "Каракалпакстан" },
+  { name: "Khiva", nameUz: "Xiva", nameRu: "Хива", lat: 41.3783, lng: 60.3639, region: "Khorezm Region", regionUz: "Xorazm viloyati", regionRu: "Хорезмская область" },
 ];
 
 export const sampleReports = [

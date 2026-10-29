@@ -232,7 +232,7 @@ export default function MessagesPage() {
                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Online" />
                   </div>
                   <span className="text-[10px] sm:text-[11px] text-slate-400 truncate block">
-                    {activeConv.otherUser.role || 'Community Member'} • Online
+                    {language === 'uz' ? (activeConv.otherUser.role === 'Finder' ? 'Topuvchi' : "Hamjamiyat a'zosi") : activeConv.otherUser.role || 'Community Member'} • Online
                   </span>
                 </div>
               </div>

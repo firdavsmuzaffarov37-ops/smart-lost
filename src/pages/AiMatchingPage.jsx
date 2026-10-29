@@ -20,7 +20,7 @@ import {
 
 export default function AiMatchingPage() {
   const navigate = useNavigate();
-  const { reports, createConversation } = useApp();
+  const { reports, createConversation, t, language } = useApp();
 
   const lostItems = useMemo(() => reports.filter((r) => r.type === 'lost'), [reports]);
   const [selectedLostItemId, setSelectedLostItemId] = useState(lostItems[0]?.id || '');
@@ -43,16 +43,18 @@ export default function AiMatchingPage() {
   const handleStartChat = (foundItem, score) => {
     createConversation({
       itemId: foundItem.id,
-      itemTitle: foundItem.title,
+      itemTitle: language === 'uz' && foundItem.titleUz ? foundItem.titleUz : foundItem.title,
       itemImage: foundItem.image,
       otherUser: {
         id: foundItem.userId,
         name: foundItem.reporterName,
         avatar: foundItem.reporterAvatar,
-        role: 'Finder',
+        role: language === 'uz' ? 'Topuvchi' : language === 'ru' ? 'Нашедший' : 'Finder',
         verified: true,
       },
-      initialMessage: `Assalomu alaykum! Our reports match on FindIt AI (${score}% match score). I believe this might be my belonging!`,
+      initialMessage: language === 'uz'
+        ? `Assalomu alaykum! FindIt AI da bizning e'lonlarimiz ${score}% mos keldi. Menimcha bu mening buyumim!`
+        : `Assalomu alaykum! Our reports match on FindIt AI (${score}% match score). I believe this might be my belonging!`,
     });
     navigate('/messages');
   };
@@ -68,15 +70,14 @@ export default function AiMatchingPage() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                AI Smart Matching Engine
+                {t('aiMatching.title')}
               </h1>
               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-violet-100 text-violet-700">
-                Local Heuristic v1.2
+                AI Match v1.2
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 max-w-2xl">
-              Our intelligent engine cross-analyzes item categories, keyword tokens, geo-coordinates,
-              and date proximity to connect lost reports with found belongings.
+              {t('aiMatching.subtitle')}
             </p>
           </div>
 
@@ -90,7 +91,7 @@ export default function AiMatchingPage() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Inspect Lost Item
+              {t('aiMatching.inspectTab')}
             </button>
             <button
               onClick={() => setViewMode('all')}
@@ -100,7 +101,7 @@ export default function AiMatchingPage() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              All System Pairs ({systemPairs.length})
+              {t('aiMatching.systemPairsTab')} ({systemPairs.length})
             </button>
           </div>
         </div>
@@ -109,27 +110,19 @@ export default function AiMatchingPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100">
           <div className="p-2.5 rounded-xl bg-slate-50 text-[11px] text-slate-600 flex items-center gap-2">
             <Layers className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            <span>
-              <strong>Category:</strong> 30% weight
-            </span>
+            <span>{t('aiMatching.categoryWeight')}</span>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-50 text-[11px] text-slate-600 flex items-center gap-2">
             <Cpu className="w-3.5 h-3.5 text-violet-600 shrink-0" />
-            <span>
-              <strong>Keywords:</strong> 35% weight
-            </span>
+            <span>{t('aiMatching.keywordsWeight')}</span>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-50 text-[11px] text-slate-600 flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-            <span>
-              <strong>Proximity:</strong> 20% weight
-            </span>
+            <span>{t('aiMatching.proximityWeight')}</span>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-50 text-[11px] text-slate-600 flex items-center gap-2">
             <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>
-              <strong>Date Closeness:</strong> 15% weight
-            </span>
+            <span>{t('aiMatching.dateWeight')}</span>
           </div>
         </div>
       </div>
@@ -140,7 +133,7 @@ export default function AiMatchingPage() {
           {/* Lost Item Selector */}
           <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3">
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Select a Lost Item to find matching candidate reports:
+              {t('aiMatching.selectPrompt')}
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
               <select
@@ -150,16 +143,16 @@ export default function AiMatchingPage() {
               >
                 {lostItems.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.title} — {item.city} ({item.date})
+                    {language === 'uz' && item.titleUz ? item.titleUz : language === 'ru' && item.titleRu ? item.titleRu : item.title} — {item.city} ({item.date})
                   </option>
                 ))}
               </select>
 
               <button
                 onClick={() => navigate('/report/lost')}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <span>+ Report Another Lost Item</span>
+                <span>{t('aiMatching.reportAnother')}</span>
               </button>
             </div>
 
@@ -174,10 +167,10 @@ export default function AiMatchingPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold uppercase px-2 py-0.2 rounded-full bg-rose-500 text-white">
-                      Lost
+                      {t('common.lost')}
                     </span>
                     <h4 className="text-xs font-bold text-slate-900 truncate">
-                      {activeLostItem.title}
+                      {language === 'uz' && activeLostItem.titleUz ? activeLostItem.titleUz : language === 'ru' && activeLostItem.titleRu ? activeLostItem.titleRu : activeLostItem.title}
                     </h4>
                   </div>
                   <p className="text-[11px] text-slate-500 truncate mt-0.5">
@@ -193,10 +186,10 @@ export default function AiMatchingPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-violet-600" />
-                Discovered Candidates ({itemMatches.length})
+                {t('aiMatching.candidatesTitle')} ({itemMatches.length})
               </h3>
               <span className="text-xs text-slate-500">
-                Sorted by AI match confidence
+                {t('aiMatching.sortedByScore')}
               </span>
             </div>
 
@@ -206,11 +199,10 @@ export default function AiMatchingPage() {
                   <Search className="w-6 h-6" />
                 </div>
                 <h4 className="text-sm font-bold text-slate-900 mb-1">
-                  No matches discovered yet
+                  {t('aiMatching.noMatchesTitle')}
                 </h4>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  No found items currently meet the similarity threshold for this report.
-                  Our matching engine checks newly submitted reports continuously.
+                  {t('aiMatching.noMatchesDesc')}
                 </p>
               </div>
             ) : (
@@ -218,6 +210,8 @@ export default function AiMatchingPage() {
                 {itemMatches.map((match) => {
                   const target = match.targetItem;
                   const isHigh = match.score >= 80;
+                  const targetTitle = language === 'uz' && target.titleUz ? target.titleUz : language === 'ru' && target.titleRu ? target.titleRu : target.title;
+                  const targetDesc = language === 'uz' && target.descriptionUz ? target.descriptionUz : language === 'ru' && target.descriptionRu ? target.descriptionRu : target.description;
 
                   return (
                     <div
@@ -235,11 +229,11 @@ export default function AiMatchingPage() {
                             }`}
                           >
                             <Sparkles className="w-3.5 h-3.5 text-violet-600" />
-                            {match.score}% Match Confidence
+                            {match.score}% {t('aiMatching.matchConfidence')}
                           </span>
 
                           <span className="text-[11px] font-semibold text-slate-400">
-                            Found Item #{target.id}
+                            #{target.id}
                           </span>
                         </div>
 
@@ -247,15 +241,15 @@ export default function AiMatchingPage() {
                         <div className="flex gap-3.5">
                           <img
                             src={target.image}
-                            alt={target.title}
+                            alt={targetTitle}
                             className="w-20 h-20 rounded-2xl object-cover shrink-0"
                           />
                           <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-sm text-slate-900 truncate">
-                              {target.title}
+                              {targetTitle}
                             </h4>
                             <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
-                              {target.description}
+                              {targetDesc}
                             </p>
                             <div className="text-[11px] text-slate-500 space-y-0.5 mt-2">
                               <div className="flex items-center gap-1 truncate">
@@ -301,9 +295,9 @@ export default function AiMatchingPage() {
                               confidenceLevel: match.confidenceLevel,
                             })
                           }
-                          className="text-xs font-semibold text-slate-700 hover:text-blue-600 transition-colors"
+                          className="text-xs font-semibold text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
                         >
-                          Compare Side-by-Side
+                          {t('aiMatching.compareBtn')}
                         </button>
 
                         <button
@@ -311,7 +305,7 @@ export default function AiMatchingPage() {
                           className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          <span>Contact Finder</span>
+                          <span>{t('aiMatching.contactFinder')}</span>
                         </button>
                       </div>
                     </div>
@@ -328,71 +322,76 @@ export default function AiMatchingPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              All Discovered Match Pairs in System ({systemPairs.length})
+              {t('aiMatching.allPairsTitle')} ({systemPairs.length})
             </h3>
-            <span className="text-xs text-slate-500">Threshold: ≥ 50% match score</span>
+            <span className="text-xs text-slate-500">{t('aiMatching.thresholdNotice')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {systemPairs.map((pair) => (
-              <div
-                key={pair.id}
-                className="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-violet-200 transition-all space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-violet-100 text-violet-700 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-violet-600" />
-                      {pair.score}% Match
-                    </span>
-                    <span className="text-xs font-bold text-slate-500">
-                      {pair.confidenceLevel} Confidence
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedMatchForModal(pair)}
-                    className="text-xs font-bold text-blue-600 hover:underline"
-                  >
-                    View Breakdown
-                  </button>
-                </div>
+            {systemPairs.map((pair) => {
+              const lostTitle = language === 'uz' && pair.lostItem.titleUz ? pair.lostItem.titleUz : pair.lostItem.title;
+              const foundTitle = language === 'uz' && pair.foundItem.titleUz ? pair.foundItem.titleUz : pair.foundItem.title;
 
-                <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-100 text-xs">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-rose-500">
-                      Lost Item
-                    </span>
-                    <p className="font-bold text-slate-900 truncate mt-0.5">
-                      {pair.lostItem.title}
-                    </p>
-                    <p className="text-[11px] text-slate-500 truncate">
-                      {pair.lostItem.city}
-                    </p>
+              return (
+                <div
+                  key={pair.id}
+                  className="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-violet-200 transition-all space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-violet-100 text-violet-700 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-violet-600" />
+                        {pair.score}% {language === 'uz' ? 'Moslik' : 'Match'}
+                      </span>
+                      <span className="text-xs font-bold text-slate-500">
+                        {pair.confidenceLevel}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedMatchForModal(pair)}
+                      className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                    >
+                      {t('aiMatching.viewSideBySide')}
+                    </button>
                   </div>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-emerald-600">
-                      Found Item
-                    </span>
-                    <p className="font-bold text-slate-900 truncate mt-0.5">
-                      {pair.foundItem.title}
-                    </p>
-                    <p className="text-[11px] text-slate-500 truncate">
-                      {pair.foundItem.city}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  <button
-                    onClick={() => handleStartChat(pair.foundItem, pair.score)}
-                    className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Connect Finder & Owner</span>
-                  </button>
+                  <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-100 text-xs">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-rose-500">
+                        {t('common.lost')}
+                      </span>
+                      <p className="font-bold text-slate-900 truncate mt-0.5">
+                        {lostTitle}
+                      </p>
+                      <p className="text-[11px] text-slate-500 truncate">
+                        {pair.lostItem.city}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-emerald-600">
+                        {t('common.found')}
+                      </span>
+                      <p className="font-bold text-slate-900 truncate mt-0.5">
+                        {foundTitle}
+                      </p>
+                      <p className="text-[11px] text-slate-500 truncate">
+                        {pair.foundItem.city}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <button
+                      onClick={() => handleStartChat(pair.foundItem, pair.score)}
+                      className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>{t('aiMatching.openInChat')}</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

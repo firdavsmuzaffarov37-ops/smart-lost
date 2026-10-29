@@ -88,18 +88,20 @@ export default function RecentReportsGrid() {
           <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
             <Search className="w-6 h-6" />
           </div>
-          <h4 className="text-sm font-bold text-slate-800 mb-1">No items found</h4>
+          <h4 className="text-sm font-bold text-slate-800 mb-1">
+            {t('items.noLostTitle')}
+          </h4>
           <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
-            No listings currently match the selected filters. Try changing categories or submit a new report.
+            {t('items.noLostDesc')}
           </p>
           <button
             onClick={() => {
               setFilterType('all');
               setSelectedCategory('all');
             }}
-            className="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors cursor-pointer"
           >
-            Reset Filters
+            {t('items.resetFilters')}
           </button>
         </div>
       ) : (

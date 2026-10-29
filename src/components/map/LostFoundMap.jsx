@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
 import { MapPin, Calendar, Gift, ArrowRight } from 'lucide-react';
 
 // Custom DivIcons for crisp SVG rendering without broken images
@@ -51,6 +52,7 @@ export default function LostFoundMap({
   onMarkerClick = null,
 }) {
   const navigate = useNavigate();
+  const { t, language } = useApp();
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs" style={{ height }}>
@@ -91,7 +93,7 @@ export default function LostFoundMap({
                   <div className="relative aspect-16/10 rounded-lg overflow-hidden mb-2 bg-slate-100">
                     <img
                       src={item.image}
-                      alt={item.title}
+                      alt={language === 'uz' && item.titleUz ? item.titleUz : item.title}
                       className="w-full h-full object-cover"
                     />
                     <span
@@ -99,7 +101,7 @@ export default function LostFoundMap({
                         item.type === 'lost' ? 'bg-rose-500' : 'bg-emerald-600'
                       }`}
                     >
-                      {item.type.toUpperCase()}
+                      {item.type === 'lost' ? t('common.lost') : t('common.found')}
                     </span>
                     {item.reward && (
                       <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white">
@@ -109,7 +111,7 @@ export default function LostFoundMap({
                   </div>
 
                   <h4 className="font-bold text-xs text-slate-900 leading-snug line-clamp-1 mb-1">
-                    {item.title}
+                    {language === 'uz' && item.titleUz ? item.titleUz : language === 'ru' && item.titleRu ? item.titleRu : item.title}
                   </h4>
 
                   <div className="text-[11px] text-slate-500 space-y-1 mb-2">
@@ -127,7 +129,7 @@ export default function LostFoundMap({
                     onClick={() => navigate(`/item/${item.id}`)}
                     className="w-full py-1.5 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs"
                   >
-                    <span>View Report Details</span>
+                    <span>{t('common.viewDetails')}</span>
                     <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>

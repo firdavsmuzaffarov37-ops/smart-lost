@@ -16,7 +16,7 @@ import {
 
 export default function LostItemsPage() {
   const navigate = useNavigate();
-  const { reports, t, globalSearch, setGlobalSearch } = useApp();
+  const { reports, t, language, globalSearch, setGlobalSearch } = useApp();
 
   const [category, setCategory] = useState('all');
   const [city, setCity] = useState('all');
@@ -135,7 +135,7 @@ export default function LostItemsPage() {
               <option value="all">{t('items.allCitiesOption')}</option>
               {citiesInUzbekistan.map((c) => (
                 <option key={c.name} value={c.name}>
-                  {c.name}
+                  {language === 'uz' ? (c.nameUz || c.name) : language === 'ru' ? (c.nameRu || c.name) : c.name}
                 </option>
               ))}
             </select>

@@ -112,7 +112,7 @@ export default function MatchComparisonModal({ match, onClose }) {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                  <span>{lostItem.date} ({lostItem.time || 'N/A'})</span>
+                  <span>{lostItem.date}{lostItem.time ? ` (${lostItem.time})` : ''}</span>
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function MatchComparisonModal({ match, onClose }) {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>{foundItem.date} ({foundItem.time || 'N/A'})</span>
+                  <span>{foundItem.date}{foundItem.time ? ` (${foundItem.time})` : ''}</span>
                 </div>
               </div>
             </div>

@@ -146,24 +146,24 @@ export default function Header() {
           {isReportModalOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               <div className="p-2 text-[11px] font-semibold uppercase text-slate-400 tracking-wider">
-                Select Report Type
+                {t('header.selectReportType')}
               </div>
               <button
                 onClick={() => {
                   setIsReportModalOpen(false);
                   navigate('/report/lost');
                 }}
-                className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-rose-50/80 transition-colors text-left group"
+                className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-rose-50/80 transition-colors text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Search className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-900 group-hover:text-rose-600 transition-colors">
-                    Report Lost Item
+                    {t('nav.reportLost')}
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    I lost a personal belonging and want help finding it.
+                    {t('header.lostDesc')}
                   </div>
                 </div>
               </button>
@@ -173,17 +173,17 @@ export default function Header() {
                   setIsReportModalOpen(false);
                   navigate('/report/found');
                 }}
-                className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-emerald-50/80 transition-colors text-left group mt-1"
+                className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-emerald-50/80 transition-colors text-left group mt-1 cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
-                    Report Found Item
+                    {t('nav.reportFound')}
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    I found someone's item and want to return it safely.
+                    {t('header.foundDesc')}
                   </div>
                 </div>
               </button>

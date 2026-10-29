@@ -28,7 +28,7 @@ export const storageService = {
       localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(initialAccounts));
     }
     if (!localStorage.getItem(STORAGE_KEYS.LANGUAGE)) {
-      localStorage.setItem(STORAGE_KEYS.LANGUAGE, 'en');
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, 'uz');
     }
   },
 

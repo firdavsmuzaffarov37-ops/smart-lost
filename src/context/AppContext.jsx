@@ -12,7 +12,7 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [language, setLanguageState] = useState('en');
+  const [language, setLanguageState] = useState('uz');
   const [toasts, setToasts] = useState([]);
   const [globalSearch, setGlobalSearch] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

@@ -14,7 +14,6 @@ import {
   AlertCircle,
   Sparkles,
   Lock,
-  Smartphone,
 } from 'lucide-react';
 
 export default function ReportFoundPage() {
@@ -22,7 +21,6 @@ export default function ReportFoundPage() {
   const { addReport, currentUser, t, language } = useApp();
 
   const fileInputRef = useRef(null);
-  const mobileCameraInputRef = useRef(null);
 
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -34,7 +32,6 @@ export default function ReportFoundPage() {
     locationAddress: '',
     coordinates: { lat: 41.311081, lng: 69.279737 },
     date: new Date().toISOString().split('T')[0],
-    time: '12:00',
     custodyLocation: 'Kept safely with me',
     image: 'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?auto=format&fit=crop&w=800&q=80',
     contactPreference: 'in_app_chat',
@@ -259,14 +256,14 @@ export default function ReportFoundPage() {
 
             {/* Action Buttons & Presets */}
             <div className="md:col-span-7 space-y-3.5">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* 1. Take Snapshot with Web/Mobile Camera */}
                 <button
                   type="button"
                   onClick={() => setIsCameraModalOpen(true)}
-                  className="p-3 rounded-2xl border-2 border-emerald-500/80 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-800 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
+                  className="p-3.5 rounded-2xl border-2 border-emerald-500/80 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-800 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
                 >
-                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Camera className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-bold text-center">
@@ -277,30 +274,13 @@ export default function ReportFoundPage() {
                   </span>
                 </button>
 
-                {/* 2. Direct Mobile Camera App */}
-                <button
-                  type="button"
-                  onClick={() => mobileCameraInputRef.current?.click()}
-                  className="p-3 rounded-2xl border-2 border-teal-500/80 bg-teal-50/50 hover:bg-teal-50 text-teal-800 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
-                >
-                  <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <span className="text-xs font-bold text-center">
-                    {language === 'uz' ? 'Telefon Kamerasi' : 'Camera App'}
-                  </span>
-                  <span className="text-[10px] text-teal-600/80 text-center">
-                    {language === 'uz' ? 'Ilovadan olish' : 'Native Capture'}
-                  </span>
-                </button>
-
-                {/* 3. Choose File from Device */}
+                {/* 2. Choose File from Device */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-3 rounded-2xl border-2 border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/60 hover:bg-slate-50 text-slate-700 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
+                  className="p-3.5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/60 hover:bg-slate-50 text-slate-700 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md group"
                 >
-                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Upload className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-bold text-center">
@@ -316,16 +296,6 @@ export default function ReportFoundPage() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-
-                {/* Hidden Native Mobile Camera Trigger */}
-                <input
-                  ref={mobileCameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
                   onChange={handleImageUpload}
                   className="hidden"
                 />
@@ -382,7 +352,7 @@ export default function ReportFoundPage() {
               >
                 {citiesInUzbekistan.map((c) => (
                   <option key={c.name} value={c.name}>
-                    {c.name} ({c.region})
+                    {language === 'uz' ? (c.nameUz || c.name) : language === 'ru' ? (c.nameRu || c.name) : c.name} ({language === 'uz' ? (c.regionUz || c.region) : language === 'ru' ? (c.regionRu || c.region) : c.region})
                   </option>
                 ))}
               </select>
@@ -413,9 +383,9 @@ export default function ReportFoundPage() {
             </div>
 
             {/* Date Found */}
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {t('reportForm.dateLabel')} <span className="text-rose-500">*</span>
+                {t('reportForm.dateFoundLabel')} <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -426,19 +396,6 @@ export default function ReportFoundPage() {
                   className="w-full pl-9 pr-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
               </div>
-            </div>
-
-            {/* Approximate Time */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {t('reportForm.timeLabel')}
-              </label>
-              <input
-                type="time"
-                value={formData.time}
-                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-              />
             </div>
           </div>
         </div>
