@@ -17,36 +17,60 @@ export default function FoundItemsPage() {
   const navigate = useNavigate();
   const { reports, t, language, globalSearch, setGlobalSearch } = useApp();
 
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'found', 'reunited'
   const [category, setCategory] = useState('all');
   const [city, setCity] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
 
+  const counts = useMemo(() => {
+    const allFound = reports.filter((i) => i.type === 'found' || i.status === 'reunited');
+    const directFound = reports.filter((i) => i.type === 'found' && i.status !== 'reunited');
+    const reunited = reports.filter((i) => i.status === 'reunited');
+    return {
+      all: allFound.length,
+      found: directFound.length,
+      reunited: reunited.length,
+    };
+  }, [reports]);
+
   const filteredItems = useMemo(() => {
     return reports
-      .filter((item) => item.type === 'found')
+      .filter((item) => {
+        const isFoundType = item.type === 'found';
+        const isReunited = item.status === 'reunited';
+        if (!isFoundType && !isReunited) return false;
+
+        if (statusFilter === 'found' && (item.type !== 'found' || item.status === 'reunited')) return false;
+        if (statusFilter === 'reunited' && !isReunited) return false;
+
+        return true;
+      })
       .filter((item) => {
         if (category !== 'all' && item.category !== category) return false;
         if (city !== 'all' && item.city.toLowerCase() !== city.toLowerCase()) return false;
         if (globalSearch.trim()) {
           const query = globalSearch.toLowerCase();
-          const matchTitle = item.title.toLowerCase().includes(query);
-          const matchDesc = item.description.toLowerCase().includes(query);
-          const matchCity = item.city.toLowerCase().includes(query);
+          const matchTitle = (item.titleUz || item.title || '').toLowerCase().includes(query);
+          const matchDesc = (item.descriptionUz || item.description || '').toLowerCase().includes(query);
+          const matchCity = (item.city || '').toLowerCase().includes(query);
           const matchAddr = (item.locationAddress || '').toLowerCase().includes(query);
           if (!matchTitle && !matchDesc && !matchCity && !matchAddr) return false;
         }
         return true;
       })
       .sort((a, b) => {
-        if (sortBy === 'newest') return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
-        if (sortBy === 'oldest') return new Date(a.createdAt || a.date) - new Date(b.createdAt || b.date);
+        const timeA = new Date(a.reunitedAt || a.createdAt || a.date).getTime();
+        const timeB = new Date(b.reunitedAt || b.createdAt || b.date).getTime();
+        if (sortBy === 'newest') return timeB - timeA;
+        if (sortBy === 'oldest') return timeA - timeB;
         return 0;
       });
-  }, [reports, category, city, globalSearch, sortBy]);
+  }, [reports, statusFilter, category, city, globalSearch, sortBy]);
 
-  const hasActiveFilters = category !== 'all' || city !== 'all' || globalSearch.trim() !== '' || sortBy !== 'newest';
+  const hasActiveFilters = statusFilter !== 'all' || category !== 'all' || city !== 'all' || globalSearch.trim() !== '' || sortBy !== 'newest';
 
   const clearAllFilters = () => {
+    setStatusFilter('all');
     setCategory('all');
     setCity('all');
     setSortBy('newest');

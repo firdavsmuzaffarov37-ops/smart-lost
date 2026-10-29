@@ -426,7 +426,7 @@ export const translations = {
     common: {
       lost: "YO'QOLGAN",
       found: "TOPILGAN",
-      reunited: "QAYTARILGAN",
+      reunited: "TOPILDI",
       reward: "Mukofot",
       location: "Manzil",
       date: "Sana",

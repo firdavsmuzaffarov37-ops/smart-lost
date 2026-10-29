@@ -11,11 +11,25 @@ export default function RecentReportsGrid() {
   const navigate = useNavigate();
   const { reports, t } = useApp();
 
-  const filteredReports = reports.filter((item) => {
-    if (filterType !== 'all' && item.type !== filterType) return false;
-    if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
-    return true;
-  });
+  const filteredReports = reports
+    .filter((item) => {
+      if (filterType === 'lost') {
+        return item.type === 'lost' && item.status !== 'reunited';
+      }
+      if (filterType === 'found') {
+        return item.type === 'found' || item.status === 'reunited';
+      }
+      return true;
+    })
+    .filter((item) => {
+      if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.reunitedAt || a.createdAt || a.date).getTime();
+      const timeB = new Date(b.reunitedAt || b.createdAt || b.date).getTime();
+      return timeB - timeA;
+    });
 
   return (
     <div className="space-y-4">

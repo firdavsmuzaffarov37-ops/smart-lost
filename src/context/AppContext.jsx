@@ -114,8 +114,8 @@ export function AppProvider({ children }) {
 
     addToast(
       created.type === 'lost'
-        ? 'Lost item report published successfully!'
-        : 'Found item registered successfully! Thank you for helping.',
+        ? (language === 'uz' ? "Yo'qolgan buyum e'loni muvaffaqiyatli chop etildi!" : language === 'ru' ? "Объявление о пропаже опубликовано!" : 'Lost item report published successfully!')
+        : (language === 'uz' ? "Topib olingan buyum ro'yxatdan o'tdi va 'Topib olinganlar' sahifasiga chiqdi!" : language === 'ru' ? "Найденная вещь успешно добавлена в список!" : 'Found item registered successfully! Thank you for helping.'),
       'success'
     );
 
@@ -140,7 +140,16 @@ export function AppProvider({ children }) {
       console.warn('Supabase update error (saved locally):', err);
     });
 
-    addToast('Report updated successfully.', 'success');
+    if (!patch.silent) {
+      addToast(
+        language === 'uz'
+          ? "E'lon muvaffaqiyatli yangilandi."
+          : language === 'ru'
+          ? "Объявление успешно обновлено."
+          : 'Report updated successfully.',
+        'success'
+      );
+    }
     return updated;
   };
 

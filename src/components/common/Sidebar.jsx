@@ -74,7 +74,7 @@ export default function Sidebar() {
   };
 
   const lostCount = reports.filter((r) => r.type === 'lost' && r.status === 'open').length;
-  const foundCount = reports.filter((r) => r.type === 'found' && r.status === 'open').length;
+  const foundCount = reports.filter((r) => r.type === 'found' || r.status === 'reunited').length;
 
   const navItems = [
     {
